@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <logger name="org.springframework.security.web.util.matcher" level="WARN"/>
+    <logger name="zipkin.reporter" level="ERROR"/>
+    <logger name="com.hazelcast.internal.diagnostics.HealthMonitor" level="WARN"/>
+
+    <springProfile name="local,dev">
+        <include resource="org/springframework/boot/logging/logback/base.xml" />
+        <logger name="org.springframework.web" level="DEBUG"/>
+        <!--<logger name="org.springframework.security" level="DEBUG"/>-->
+        <!--<logger name="org.springframework.security.web.util.matcher" level="WARN"/>-->
+
+        <logger name="com.neoframework.microservices" level="DEBUG"/>
+        <logger name="zipkin.reporter" level="ERROR"/>
+
+        <!--<appender name="CatAppender" class="com.dianping.cat.logback.CatLogbackAppender"></appender>-->
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+            <!--<appender-ref ref="CatAppender" />-->
+        </root>
+    </springProfile>
+
+    <springProfile name="default,prod,test">
+        <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+        <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+        <include resource="org/springframework/boot/logging/logback/console-appender.xml" /><!-- 仍然到stdout -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+        </root>
+
+        <!--<logger name="org.springframework.security.web.util.matcher" level="WARN"/>-->
+    </springProfile>
+</configuration>

@@ -1,0 +1,214 @@
+allprojects {
+    // apply plugin: 'maven'
+    //apply plugin: 'java'
+
+	apply plugin: 'java'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'application'
+
+    //group = 'com.example.sub.some-name'
+    //version = '1.0-SNAPSHOT' // 在 gradle.properties 指定系统的基础版本
+}
+
+buildscript {
+	project.ext {
+		springBootVersion = '1.5.4.RELEASE'
+		gradleDockerVersion = '1.2'
+	}
+    repositories {
+        // mavenLocal()
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/content/groups/public/" }
+        maven { url "https://repo.spring.io/libs-milestone/" }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.springBootVersion}"
+    }
+}
+
+// To support "Use default gradle wrapper (recommended)"
+// Reference: http://stackoverflow.com/questions/24811997/android-studio-use-default-gradle-wrapper-vs-use-customizable-gradle-wrappe
+task createWrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+subprojects {
+
+    compileJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        options.encoding = 'UTF-8'
+    }
+
+    compileTestJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        options.encoding = 'UTF-8'
+    }
+
+    [compileJava, compileTestJava].each() {
+        it.options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation", "-Xlint:-options"]
+        it.options.encoding = "UTF-8"
+    }
+
+	repositories {
+        mavenLocal()
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/content/groups/public/" }
+        maven { url "https://repo.spring.io/libs-milestone/" }
+//        maven{
+//            url:'https://maven.aliyun.com/nexus/content/groups/public/'
+//        }
+//        maven{
+//            url:'http://repo.spring.io/milestones'
+//        }
+		mavenCentral()
+		jcenter()
+	}
+
+	dependencyManagement {
+	  imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Dalston.SR3'
+	  }
+	}
+
+    dependencies {
+        // compile '::'
+
+    }
+
+}
+
+/**
+ * 当前提交 SHA1 信息.
+ *
+ * @return git 当前 HEAD 提交的 SHA1 short 值
+ */
+def gitHeadCommit() {
+    // git rev-parse HEAD
+    def cmd = 'git rev-parse --short HEAD'
+    cmd.execute().text.trim()
+}
+
+/**
+ * 需要时使用. 但数值的意义不够精准，提交不同时，总提交数却可以相同.
+ *
+ * @return git 当前 HEAD 提交的对应总提交数
+ * @deprecated
+ */
+def gitVersionCode() {
+    // removed: --first-parent
+    def cmd = 'git rev-list HEAD --count'
+    cmd.execute().text.trim().toInteger()
+}
+
+/**
+ * 需要时使用.
+ *
+ * @return git describe 当前基于 tags 的描述
+ * @deprecated
+ */
+def gitVersionTag() {
+    def cmd = 'git describe --tags'
+    def versionTag = cmd.execute().text.trim()
+
+    def pattern = "-(\\d+)-g"
+    def matcher = version =~ pattern
+
+    if (matcher) {
+        versionTag = version.substring(0, matcher.start()) + "." + matcher[0][1]
+    } else {
+        versionTag = version + ".0"
+    }
+
+    return versionTag
+}
+
+/**
+ * 获取设定的版本整形代号.
+ *
+ * @param version
+ * @return 整形代号。如果是 test 版本，前面加 90
+ */
+def getVersionCode(version) {
+    def buildType
+    if (rootProject.hasProperty("build_type")) {
+        buildType = rootProject.getProperty("build_type")
+    } else {
+        buildType = 'test'
+    }
+
+    // 按《语义化版本 2.0.0》，开头不带v 。 TODO: 应严格按照《语义化版本 2.0.0》提供的正则匹配来确定。
+    // def pattern = "v(\\d+)\\.(\\d+)\\.(\\d+)"
+    def pattern = "(\\d+)\\.(\\d+)\\.(\\d+)"
+    def matcher = version =~ pattern
+
+    if (matcher) {
+        def majorNumber = Integer.parseInt(matcher[0][1])
+        def minorNumber = Integer.parseInt(matcher[0][2])
+        def revisionNumber = Integer.parseInt(matcher[0][3])
+
+        // 正式环境
+        // 注意：这里按本项目实际情况，minorNumber 和 revisionNumber 不超出 100 来计算。如果项目实际情况有更多的话，
+        // 自行调整。初步估计即使在临近处理，亦可以保证前后版本号不重复，且满足单调递增。
+        def versionCode = majorNumber * 10000 + minorNumber * 100 + revisionNumber
+        if (buildType.toLowerCase() != 'release') {
+            // 非正式环境带上一个基数
+            versionCode = 9000000 + versionCode
+        }
+
+        return versionCode
+    } else {
+        // TODO: throw exception for failed
+    }
+
+}
+
+/**
+ * 获取设定的版本名称字符串.
+ *
+ * @param version
+ * @return 格式 version g当前HEAD的SHA1-short值 b编译时间-最小到分钟。如果是test 版本则最后加 test
+ */
+def getVersionName(version) {
+    def buildType
+    if (rootProject.hasProperty("build_type")) {
+        buildType = rootProject.getProperty("build_type")
+    } else {
+        buildType = 'test'
+    }
+
+    // 正式环境
+    def versionName = version + " g" + gitHeadCommit() + " b" + new Date().format("yyyyMMddHHmm")
+    if (buildType.toLowerCase() != 'release') {
+        // 测试环境
+        versionName = versionName + " test"
+    }
+    return versionName
+}
+// 为了新旧兼容，jar所用的versionName仍然需要区分
+def getVersionNameShort() {
+    if (rootProject.hasProperty("build_type")) {
+        return version
+    } else {
+        return '0.0.1'
+    }
+}
+
+// 测试上面函数的task。 运行 gradlew.bat testFunction
+task testFunction {
+    doLast {
+        println('gitHeadCommit:')
+        println(gitHeadCommit())
+        println('gitVersionCode:')
+        println(gitVersionCode())
+        println('gitVersionTag:')
+        println(gitVersionTag())
+        println('getVersionCode:')
+        println(getVersionCode(rootProject.getProperty("version")))
+        println('getVersionName:')
+        println(getVersionName(rootProject.getProperty("version")))
+    }
+}

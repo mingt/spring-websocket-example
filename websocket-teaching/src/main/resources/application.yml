@@ -1,0 +1,18 @@
+#logging:
+#  level:
+#     org:
+#       springframework:
+#         security: DEBUG
+
+mybatis:
+  config-location: 'classpath:mybatis/_mybatis_config.xml'
+  mapper-locations: 'classpath*:mybatis/mapper/**/*.xml'
+  type-aliases-package: 'com.thinkgem.jeesite.modules;com.neoframework.biz.api.teaching.model;com.neoframework.biz.api.wsteaching.model'
+
+spring:
+  cloud:
+    config:
+      # 支持命令行等属性覆盖
+      allowOverride: true
+      overrideNone: true
+      overrideSystemProperties: false

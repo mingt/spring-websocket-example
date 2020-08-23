@@ -1,0 +1,72 @@
+# 一般情况下，这些配置由配置中心 config-server 管理。现在为了演示所以放这里。启动时需要指定 -Dspring.profiles.active=local
+
+server:
+  port: 8082
+  contextPath: /api
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+# 在需要时，可使用这个自定义环境
+environment:
+  name: local
+
+spring:
+  profiles:
+    active: local
+  zipkin:
+    baseUrl: http://localhost:9411/
+  sleuth:
+    sampler:
+      # 线上生产务必按实际需要调整，量大时通常采样 0.1 即可
+      percentage: 1.0
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/elearning?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true
+    username: root
+    password: 123456
+    driver-class: com.mysql.jdbc.Driver
+  jackson:
+    time-zone: Asia/Shanghai
+
+logging:
+  file: /data/neoframeowork/logs/${spring.application.name}.log
+#  level:
+#    org.springframework.security: DEBUG
+
+# When enabled=false, traces log to the console. Comment to send to zipkin
+sample:
+  zipkin:
+    enabled: true
+
+# Note that we will use the JWT token to get user data
+security:
+  oauth2:
+    resource:
+      jwt:
+        keyValue: |
+          -----BEGIN PUBLIC KEY-----
+          MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhVny3DfQqdvQaPj6SJiiFfPRGH/5k3OiAXTCsmpKnL/GVKZpfFjT3LhN7xoj0DzJLTCOE94eOjIHipFzxrL00kBCZJ3HOornKDpTh17yPuqJI6DNmvJaRBbc3SVQsO0vndnDAeOBiv4euGHH97sPZYFqhmwM35PboqxeWaHrfgWcA5F8VFTp+HDPr26G4sv/UqkR1LsfRoD4gzNJswi00eWcNjeoEzy71023VECQYDytUg/wVqWOJnShWOJnCBnuzmjrtOCg6O6ecdHhVaiRI0//ZR71x2oDW5pe+kgVhhM29TH8SVRjbAFh35obN6ppcF3A7PFLf+euZTsmXMaahQIDAQAB
+          -----END PUBLIC KEY-----
+
+---
+# service instance when used on Docker
+spring:
+  profiles: docker
+  zipkin:
+    baseUrl: http://zipkinserver:9411/
+
+eureka:
+# Register our microservices to Eureka using hostnames in a Docker environment will not work, they will all get
+# one and the same hostname. Instead we configure them to use its IP address during registration with Eureka.
+  instance:
+    preferIpAddress: true
+  client:
+    serviceUrl:
+      defaultZone: http://eurekaregistry:8761/eureka/
+
+# Define the port where the API gateway server would be running. This could always be port 8080
+# since each docker container has it's own IP
+server:
+  port: 8080

@@ -1,0 +1,143 @@
+/*
+* Build file for this project
+*/
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+apply plugin: 'docker'
+apply plugin: 'eclipse'
+
+buildscript {
+	project.ext {
+        // see parent //springBootVersion = '1.5.3.RELEASE'
+        // see parent //gradleDockerVersion = '1.2'
+
+        jarName = 'basic-websocket-teaching'
+        versionName = getVersionNameShort()
+	}
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        // see parent //classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.springBootVersion}"
+        classpath "se.transmode.gradle:gradle-docker:${project.gradleDockerVersion}"
+    }
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+// Used by the Docker gradle plugin, group refers to the account under which the docker image is created
+group = 'neoframework'
+mainClassName = 'com.neoframework.microservices.wsteaching.WsTeachingApplication'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    // maven { url 'http://cat.meituan.com/nexus/content/repositories/releases/' }
+    mavenLocal()
+}
+
+dependencyManagement {
+  imports {
+    // see parent //mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Dalston.SR3'
+  }
+}
+
+dependencies {
+    // Basic Spring boot with config client
+    compile('org.springframework.cloud:spring-cloud-starter-config')
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Spring OAuth2 security
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.security.oauth:spring-security-oauth2")
+    compile("org.springframework.security:spring-security-jwt")
+
+    // Eureka client
+    compile('org.springframework.cloud:spring-cloud-starter-eureka')
+
+    // // Zipkin tracing
+    // compile('org.springframework.cloud:spring-cloud-starter-zipkin')
+
+    // data
+    compile("mysql:mysql-connector-java:5.1.30")
+    compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")
+
+     // base common api dependency
+     compile project(':base-common')
+
+    // // CAT
+    // compile("com.dianping.cat:cat-client:2.0.0")
+
+    // // websocket
+    // compile("org.springframework.boot:spring-boot-starter-websocket")
+    // // 当前版本 starter-websocket 不包括这个，要显式声明
+    // compile("org.springframework.security:spring-security-messaging")
+}
+
+jar {
+    baseName = "${project.jarName}"
+    version =  "${project.versionName}"
+}
+
+/*
+ * 生成版本设定属性文件.
+ * TODO: 若为支持子项目独立自定义版本，可在子项目这里自定义 getVersionName 相应处理。目前暂统一使用 rootProject 的定义
+ */
+processResources.doLast {
+    if (rootProject.hasProperty("build_type")) {
+
+//    println tasks.findByPath(':wsteaching-service:genVersionProperties')
+//    project.tasks.getByName('genVersionProperties').execute();
+
+        println "generate version properties for ${project.name}"
+        def configFile = new File('build/resources/main/version.properties')
+        configFile.withOutputStream { os ->
+            os << '# Auto generated version properties\n'
+            os << 'name=' + project.name + '\n'
+            os << 'version=' + version + '\n'
+            os << 'versionDetail=' + getVersionName(version) + '\n'
+            os << 'versionCode=' + getVersionCode(version) + '\n'
+        }
+
+    }
+}
+
+/*
+* This task builds the docker image by copying the output of the "jar" gradle command
+* and moving it to the "build/docker" directory which is used as the staging directory
+* by the docker gradle plugin. We then build the docker image by invoking the appropriate
+* Dockerfile.
+*/
+task buildDocker(type: Docker, dependsOn: build) {
+  push = false
+  applicationName = jar.baseName
+  tagVersion = jar.version
+  dockerfile = file('src/main/docker/Dockerfile')
+  doFirst {
+    // Copy the built fat jar to the Docker plugin staging directory
+    copy {
+      from jar
+      into stageDir
+    }
+    // Copy the run.sh file to the Docker plugin staging directory
+    copy {
+      from "${project.buildDir}/resources/main/run.sh"
+      into stageDir
+    }
+  }
+}
+
+run {
+    // 去掉 ,'-Dspring.profiles.active=default'
+    // 目的使 IDE 运行，本地命令行和服务器运行均以 config-server 为准，保持各处日志等一致
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4500,suspend=n']
+    if (project.hasProperty('rebelAgent')) {
+        jvmArgs += rebelAgent
+    }
+}

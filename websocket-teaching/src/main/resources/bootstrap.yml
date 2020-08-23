@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: websocket-teaching
+  cloud:
+    config:
+      # 生产服和测试服等要求 /etc/hosts 增加记录 172.18.214.251 configserver
+      uri: http://configserver:8888
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+     config:
+        uri: http://configserver:8888
+
+---
+
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: http://localhost:8888

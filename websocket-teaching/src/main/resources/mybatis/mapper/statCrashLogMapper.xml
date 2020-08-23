@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neoframework.microservices.wsteaching.dao.StatCrashLogDao">
+
+    <sql id="allColsSql">
+        a.id,
+        a.crash_log AS `crashLog`
+        a.action_date AS `actionDate`
+        a.operator,
+        a.network,
+        a.platform,
+        a.version,
+        a.uid,
+        a.creation_date AS `creationDate`
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO stat_crash_log (
+        id,
+        crash_log,
+        action_date,
+        <if test="operator != null">
+        operator,
+        </if>
+        <if test="network != null">
+        network,
+        </if>
+        platform,
+        version,
+        uid,
+        creation_date
+        )
+        VALUES (
+        #{id},
+        #{crashLog},
+        #{actionDate},
+        <if test="operator != null">
+        #{operator},
+        </if>
+        <if test="network != null">
+        #{network},
+        </if>
+        #{platform},
+        #{version},
+        #{uid},
+        #{creationDate}
+        )
+    </insert>
+
+</mapper>
