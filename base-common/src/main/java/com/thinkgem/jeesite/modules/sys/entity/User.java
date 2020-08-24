@@ -47,6 +47,18 @@ public class User extends DataEntity<User> {
     }
 
     /**
+     * Instantiates a new User.
+     *
+     * @param id the id
+     * @param name the name
+     */
+    public User(String id, String name) {
+        super(id);
+
+        this.name = name;
+    }
+
+    /**
      * Gets company.
      *
      * @return the company
@@ -286,6 +298,11 @@ public class User extends DataEntity<User> {
      */
     public void setLoginFlag(String loginFlag) {
         this.loginFlag = loginFlag;
+    }
+
+    @JsonIgnore
+    public boolean isDeleted() {
+        return DEL_FLAG_DELETE.equals(getDelFlag());
     }
 
     @Override

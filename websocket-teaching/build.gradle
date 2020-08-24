@@ -68,16 +68,23 @@ dependencies {
     compile("mysql:mysql-connector-java:5.1.30")
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")
 
-     // base common api dependency
-     compile project(':base-common')
+    // base common api dependency
+    compile project(':base-common')
 
     // // CAT
     // compile("com.dianping.cat:cat-client:2.0.0")
 
-    // // websocket
-    // compile("org.springframework.boot:spring-boot-starter-websocket")
-    // // 当前版本 starter-websocket 不包括这个，要显式声明
-    // compile("org.springframework.security:spring-security-messaging")
+    // websocket
+    compile("org.springframework.boot:spring-boot-starter-websocket")
+    // 当前版本 starter-websocket 不包括这个，要显式声明
+    compile("org.springframework.security:spring-security-messaging")
+
+    // 辅助 websocket 调试前端
+    compile("org.webjars:webjars-locator-core:0.35")
+    compile("org.webjars:sockjs-client:1.0.2")
+    compile("org.webjars:stomp-websocket:2.3.3")
+    compile("org.webjars:bootstrap:3.3.7")
+    compile("org.webjars:jquery:3.1.0")
 }
 
 jar {
@@ -136,7 +143,7 @@ task buildDocker(type: Docker, dependsOn: build) {
 run {
     // 去掉 ,'-Dspring.profiles.active=default'
     // 目的使 IDE 运行，本地命令行和服务器运行均以 config-server 为准，保持各处日志等一致
-    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4500,suspend=n']
+    jvmArgs = ['-Xdebug', '-Xrunjdwp:server=y,transport=dt_socket,address=4300,suspend=n']
     if (project.hasProperty('rebelAgent')) {
         jvmArgs += rebelAgent
     }
