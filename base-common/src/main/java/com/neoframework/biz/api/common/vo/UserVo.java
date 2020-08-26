@@ -2,9 +2,12 @@
 package com.neoframework.biz.api.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thinkgem.jeesite.modules.sys.entity.User;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 // import com.google.common.collect.Lists;
 // import com.thinkgem.jeesite.common.utils.DateUtils;
@@ -62,56 +65,52 @@ public class UserVo implements Serializable {
      */
     public UserVo() {}
 
-    // public UserVo(User user) {
-    // this.id = user.getId();
-    // this.uid = user.getUid();
-    // if (user.getCompany() != null) {
-    // this.companyName = user.getCompany().getName();
-    // }
-    // if (user.getOffice() != null) {
-    // this.officeName = user.getOffice().getName();
-    // }
-    // this.name = user.getName();
-    // this.photo = user.getPhoto();
-    // //this.roleName = roleName;
-    // this.remarks = user.getRemarks();
-    // this.createDate = DateUtils.formatDateTime(user.getCreateDate());
-    // this.expiredDate = DateUtils.formatDateTime(user.getExpiredDate());
-    // this.loginName = user.getLoginName();
-    // this.email = user.getEmail();
-    // this.phone = user.getPhone();
-    // this.mobile = user.getMobile();
-    // this.sex = user.getSex();
-    // this.qq = user.getQq();
-    // this.signature = user.getSignature();
-    // this.referralCode = user.getReferralCode();
-    // this.fromReferralCode = user.getFromReferralCode();
-    // this.loginIp = user.getLoginIp();
-    // this.loginDate = DateUtils.formatDateTime(user.getLoginDate());
-    // this.bookTagId = user.getBookTagId();
-    // this.bookTagName = user.getBookTagName();
-    // this.studentUid = user.getStudentUid();
-    // this.relation = user.getRelation();
-    // this.parents = user.getParents();
-    // this.no = user.getNo();
-    //
-    // // TODO: 使用 ROLE_ roleList 代替
-    // // final List<Privilege> privilegeList = user.privileges();
-    // // for (Privilege privilege : privilegeList) {
-    // // this.privileges.add(privilege.name());
-    // // }
-    // this.role = user.getRole();
-    // this.roleList = user.getRoleList();
-    //
-    // if (user.getRole() != null && StringUtils.isNoneBlank(user.getRole().getName())) {
-    // this.roleName = user.getRole().getName();
-    // } else if (user.getRoleList() != null && user.getRoleList().size() > 0) {
-    // String name = user.getRoleList().get(0).getName();
-    // if (StringUtils.isNoneBlank(name)) {
-    // this.roleName = name;
-    // }
-    // }
-    // }
+    /**
+     * Instantiates a new User vo.
+     *
+     * @param user the user
+     */
+    public UserVo(User user) {
+        this.id = user.getId();
+        this.uid = user.getUid();
+        if (user.getCompany() != null) {
+            this.companyName = user.getCompany().getName();
+        }
+        if (user.getOffice() != null) {
+            this.officeName = user.getOffice().getName();
+        }
+        this.name = user.getName();
+        this.photo = user.getPhoto();
+        // this.roleName = roleName;
+        this.remarks = user.getRemarks();
+        // this.createDate = DateUtils.formatDateTime(user.getCreateDate());
+        // this.expiredDate = DateUtils.formatDateTime(user.getExpiredDate());
+        this.createDate = DateFormatUtils.format(user.getCreateDate(), "yyyy-MM-dd HH:mm:ss");
+        // this.expiredDate = DateFormatUtils.format((user.getExpiredDate(), "yyyy-MM-dd HH:mm:ss");
+        this.loginName = user.getLoginName();
+        this.email = user.getEmail();
+        this.phone = user.getPhone();
+        this.mobile = user.getMobile();
+
+        this.no = user.getNo();
+
+        // // TODO: 使用 ROLE_ roleList 代替
+        // // final List<Privilege> privilegeList = user.privileges();
+        // // for (Privilege privilege : privilegeList) {
+        // // this.privileges.add(privilege.name());
+        // // }
+        // this.role = user.getRole();
+        // this.roleList = user.getRoleList();
+        //
+        // if (user.getRole() != null && StringUtils.isNoneBlank(user.getRole().getName())) {
+        //     this.roleName = user.getRole().getName();
+        // } else if (user.getRoleList() != null && user.getRoleList().size() > 0) {
+        //     String name = user.getRoleList().get(0).getName();
+        //     if (StringUtils.isNoneBlank(name)) {
+        //         this.roleName = name;
+        //     }
+        // }
+    }
 
     /**
      * Gets id.

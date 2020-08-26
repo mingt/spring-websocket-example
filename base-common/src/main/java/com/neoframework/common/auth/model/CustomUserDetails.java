@@ -20,7 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public class CustomUserDetails implements UserDetails {
 
-    private static final long serialVersionUID = 3957586021470480642L;
+    private static final long serialVersionUID = 3960629356924497112L;
 
     /**
      * 角色权限 前缀
@@ -104,47 +104,6 @@ public class CustomUserDetails implements UserDetails {
         // // for (Privilege privilege : privileges) {
         // // this.grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + privilege.name()));
         // // }
-        //
-        // // 处理角色：（1）确保学生/老师/家长只能为其中一个（2）目前增加代理商角色，暂时也只能是其中一个
-        // final List<Role> roles = user.getRoleList();
-        // if (null == roles || roles.size() == 0) {
-        // return true; // 表示没有角色可处理
-        // }
-        // if (roles.size() >= 2) {
-        // boolean foundT = false;
-        // boolean foundS = false;
-        // boolean foundP = false;
-        // boolean foundA = false;
-        // for (Role role : roles) {
-        // if (ElearningConstant.UserRole.TEACHER.equals(role.getEnname())) {
-        // foundT = true;
-        // this.role = ElearningConstant.UserRole.TEACHER;
-        // } else if (ElearningConstant.UserRole.STUDENT.equals(role.getEnname())) {
-        // foundS = true;
-        // this.role = ElearningConstant.UserRole.STUDENT;
-        // } else if (ElearningConstant.UserRole.PARENT.equals(role.getEnname())) {
-        // foundP = true;
-        // this.role = ElearningConstant.UserRole.PARENT;
-        // } else if (ElearningConstant.UserRole.AGENT.equals(role.getEnname())) {
-        // foundA = true;
-        // this.role = ElearningConstant.UserRole.AGENT;
-        // } else { // add 20180626 支持其他角色
-        // this.role = role.getEnname();
-        // break;
-        // }
-        // }
-        // if ((foundT && foundS) || (foundT && foundP) || (foundS && foundP) || (foundA && foundS)
-        // || (foundA && foundT) || (foundA && foundP)) {
-        // return false;
-        // }
-        // } else {
-        // this.role = roles.get(0).getEnname();
-        // }
-        // for (Role role : roles) {
-        // if (StringUtils.isNoneBlank(role.getEnname())) {
-        // this.grantedAuthorities.add(new SimpleGrantedAuthority(role.getEnname()));
-        // }
-        // }
 
         return true;
     }
