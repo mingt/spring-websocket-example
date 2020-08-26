@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Hello WebSocket</title>
+    <link href="/api/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="main.css" rel="stylesheet">
+    <style type="text/css">
+       .container .row{margin-bottom:5px;}
+    </style>
+    <script src="/api/webjars/jquery/jquery.min.js"></script>
+    <script src="/api/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/api/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+    enabled. Please enable
+    Javascript and reload this page!</h2></noscript>
+<div id="main-content" class="container">
+    <h4>聊天相关 ws 接口测试和DEMO，SockJS，Stomp</h4>
+    <div class="row">
+        <div class="col-md-12">
+            <form class="">
+                <div class="form-group"><label for="connect">输入希望登录的当前用户 access_token : <span style="color:#bbb;">(你可以在同一个浏览器打开多个标签，使用相同或不同的 token 测试)</span></label>
+                    <textarea rows="8" id="access-token" class="form-control" placeholder="通过 postman 使用不同的账号请求后获取"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="type">自定义频道的 type:</label>
+                    <input type="text" id="type" class="form-control" placeholder="例如 public 或任意字符串">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group" style="margin-bottom: 5px;">
+                    <label for="id">自定义频道的 id:</label>
+                    <input type="text" id="id" class="form-control" placeholder="例如 publicId 的值或任意值">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">WebSocket connection:</label>
+                    <button id="connect" class="btn btn-primary" type="submit" title="连接 wschat" style="margin-bottom: 5px;">Connect 并订阅上面频道</button>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled" title="断开连接">Disconnect 断开连接</button>
+                    <button id="reconnect" class="btn btn-default hide" type="button" title="重新连接可更新频道">重新连接并更新频道</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group" style="margin-bottom: 5px;">
+                    <label for="name">要发送的内容 &nbsp;&nbsp;&nbsp;:</label>
+                    <input type="text" id="name" class="form-control" placeholder="">
+                </div>
+                <button id="send" class="btn btn-primary" type="submit" title="全部在线用户都会收到">Send 向全部在线用户</button>
+                <button id="sendSelf" class="btn btn-primary" type="button" title="只有自己能收到">Send 仅自己</button>
+                <button id="sendSelfPmOld" class="btn btn-primary" type="button" title="只有自己能收到(old)">Send 仅自己(old)</button>
+                <button id="sendToChannel" class="btn btn-primary" type="button" title="向特当前指定的频道发送">Send 向指定频道</button>
+                <button id="testPublicUsers" class="btn btn-primary" type="button" title="测试显示当前名师空间聊天用户列表">测试显示名师问答用户列表</button>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table id="conversation" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Greetings (最新的在最前面)<span style="float:right;">频道标识：<span id="channel-id">&nbsp;</span></span></th>
+                </tr>
+                </thead>
+                <tbody id="greetings">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

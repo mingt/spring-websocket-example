@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Teaching WebSocket Demo</title>
+    <link href="/api/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="main.css" rel="stylesheet">
+    <style type="text/css">
+       .container .row{margin-bottom:5px;}
+       tr.tr-block-top{ border-top: 5px solid #0e90d2;}
+       tr.tr-block-bottom{ border-bottom: 2px solid #46aeea;}
+    </style>
+    <script src="/api/webjars/jquery/jquery.min.js"></script>
+    <script src="/api/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/api/webjars/stomp-websocket/stomp.min.js"></script>
+    <script src="teachingApp.js"></script>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
+    enabled. Please enable
+    Javascript and reload this page!</h2></noscript>
+<div id="main-content" class="container">
+    <h4>授课相关 ws 接口测试</h4>
+    <!--<div class="row">
+        <div class="col-md-12">
+            <form class="">
+                <div class="form-group"><label for="connect">输入希望登录的当前用户 access_token : <span style="color:#bbb;">(你可以在同一个浏览器打开多个标签，使用相同或不同的 token 测试)</span></label>
+                    <textarea rows="8" id="access-token" class="form-control" placeholder="通过 postman 使用不同的账号请求后获取"></textarea>
+                </div>
+            </form>
+        </div>
+    </div>-->
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="classId">登录名（必填）:</label>
+                    <input type="text" id="loginName" class="form-control" placeholder="请输入登录名">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group" style="">
+                    <label for="paramX">登录密码(必填):</label>
+                    <input type="password" id="password" class="form-control" placeholder="请输入密码">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="classId">参数: 课堂ID(必填):</label>
+                    <input type="text" id="classId" class="form-control" value="111222" placeholder="">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="form-inline">
+                <div class="form-group" style="">
+                    <label for="paramX">其他参数(可选):</label>
+                    <input type="text" id="paramX" class="form-control" placeholder="">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="connect">WebSocket connection:</label>
+                    <button id="connect" class="btn btn-primary" type="submit" title="连接" style="">Connect 连接</button>
+                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled" title="断开连接">Disconnect 断开连接</button>
+                    <button id="reconnect" class="btn btn-default hide" type="button" title="快速重新连接">断开再重新连接</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+        <form class="">
+            <div class="form-group">
+                <label for="command">指令参数(json):</label>
+                <textarea id="command" class="form-control" rows="8" placeholder=''>{"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}</textarea>
+                <p class="help-inline" style="color:#737373;">送出的完整commandParam: {"classId": "111222","command": {"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}}</p>
+            </div>
+        </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <form class="form-inline">
+                <div class="form-group" style="display: none;">
+                    <label for="name">要发送的内容 &nbsp;&nbsp;&nbsp;:</label>
+                    <input type="text" id="name" class="form-control" placeholder="">
+                </div>
+                <button id="btn-class" class="btn btn-info" type="button" title="课堂指令">发送课堂指令</button>
+                <button id="btn-timer" class="btn btn-info" type="button" title="计时器指令">发送计时器指令</button>
+                <button id="btn-callName" class="btn btn-info" type="button" title="点名指令">发送点名指令</button>
+                <button id="btn-resource" class="btn btn-info" type="button" title="资源指令">发送资源指令</button>
+                <button id="btn-homework" class="btn btn-info" type="button" title="作业指令">发送作业指令</button>
+                <button id="btn-vote" class="btn btn-info" type="button" title="投票指令">发送投票指令</button>
+                <br><br>
+                <button id="testGenericOnlyCmd" class="btn btn-primary" type="button" >测试/topic/cmd</button>
+                <button id="testGenericTopic" class="btn btn-primary" type="button" >测试普通topic频道</button>
+                <button id="testGenericUsers" class="btn btn-primary" type="button" >测试发送多用户</button>
+                <button id="testGenericSelf" class="btn btn-primary" type="button" >测试自己收发</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table id="conversation" class="table "><!-- table-striped -->
+                <thead>
+                <tr>
+                    <th>回应结果(最新的在最前面)： <span style="float:right;">&nbsp;<span id="channel-id">&nbsp;</span></span></th>
+                </tr>
+                </thead>
+                <tbody id="greetings">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

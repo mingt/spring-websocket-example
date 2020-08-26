@@ -11,8 +11,10 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 /**
  * 配置 ResourceServerConfigurerAdapter 支持忽略路径.
  *
- * <p>另一种实现方法是直接由 application 类，如 AuthApplication, UserApplication 继承 ResourceServerConfigurerAdapter，
- * 同时，同样添加下面配置 HttpSecurity 的方法（注释掉的 WebSecurityConfigurerAdapter 可用于忽略资源类）</p>
+ * <p>
+ * 另一种实现方法是直接由 application 类，如 AuthApplication, UserApplication 继承 ResourceServerConfigurerAdapter，
+ * 同时，同样添加下面配置 HttpSecurity 的方法（注释掉的 WebSecurityConfigurerAdapter 可用于忽略资源类）
+ * </p>
  *
  **/
 @Configuration
@@ -31,12 +33,16 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
                 // See https://jira.springsource.org/browse/SPR-11496
                 .headers()
-                .addHeaderWriter(new XFrameOptionsHeaderWriter(
-                        XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 .and()
 
-                .authorizeRequests().antMatchers("/sys/version", "/statCrashLog").permitAll().anyRequest()
-                .authenticated().and().logout().permitAll().and().formLogin().permitAll().and()
+                .authorizeRequests()
+                .antMatchers("/sys/version",
+                    "/statCrashLog", // TODO: 仅测试
+                    "/topic/**", "/app/**", "/wschat/**", "/wsteaching/**" // gs-guide-websocket
+                )
+
+                .permitAll().anyRequest().authenticated().and().logout().permitAll().and().formLogin().permitAll().and()
                 .exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
     }
 }

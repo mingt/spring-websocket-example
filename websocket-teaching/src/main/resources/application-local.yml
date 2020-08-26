@@ -3,6 +3,10 @@
 server:
   port: 8082
   contextPath: /api
+  compression:
+    enabled: true
+    mime-types: application/json
+    # default # min-response-size: 2048
 
 eureka:
   client:
@@ -27,8 +31,17 @@ spring:
     username: root
     password: 123456
     driver-class: com.mysql.jdbc.Driver
+    tomcat:
+      max-wait: 10000
+      # Maximum number of active connections that can be allocated from this pool at the same time
+      max-active: 600
+      min-idle: 50
+      validation-query: "SELECT 1"
+      test-on-borrow: true
+      initial-size: 1
   jackson:
     time-zone: Asia/Shanghai
+    default-property-inclusion: non_null
 
 logging:
   file: /data/neoframeowork/logs/${spring.application.name}.log
