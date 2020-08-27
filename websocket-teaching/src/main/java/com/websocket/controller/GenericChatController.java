@@ -1,14 +1,13 @@
 
 package com.websocket.controller;
 
-import com.neoframework.common.auth.model.CustomUserDetails;
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
+import com.websocket.intercept.WsChannelInterceptor;
 import com.websocket.model.User;
 import com.websocket.model.chat.Message;
 import com.websocket.model.chat.Room;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +41,8 @@ public class GenericChatController extends BaseWebSocketController {
 
     /**
      * 通用的给某指定频道发消息.
+     *
+     * <p>TODO: 改为最终消息的相关信息。目前仅为配合测试页面返回更多信息的文字</p>
      *
      * @param message 带有频道信息 type 和 id
      * @param principal 当前用户
@@ -79,30 +80,32 @@ public class GenericChatController extends BaseWebSocketController {
      * 获取聊天室当前的用户列表. 父类只列出当前用户，作为默认实现，子类再具体处理.
      *
      * @param room 带频道信息
+     * @param channelId 频道ID
      * @param principal 当前用户
      * @return
      */
-    protected List<User> getUsers(Room room, Principal principal) {
-        // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
-        // ? principal.getName() : UNKNOWN_USER;
-        // logger.info("Principal with {}", fromUser);
+    protected List<User> getUsers(Room room, String channelId, Principal principal) {
+        // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
+        // // ? principal.getName() : UNKNOWN_USER;
+        // // logger.info("Principal with {}", fromUser);
+        //
+        // CustomUserDetails userDetails = getCurrentCustomUserDetails(principal);
+        // com.thinkgem.jeesite.modules.sys.entity.User sysUser =
+        // (null != userDetails) ? userDetails.getUser() : new com.thinkgem.jeesite.modules.sys.entity.User();
+        // List<User> users = new ArrayList<>();
+        // if (null != sysUser.getLoginName()) {
+        // User user = new User(sysUser.getId(), sysUser.getUid(), sysUser.getLoginName(), sysUser.getName(),
+        // userDetails.getRole());
+        // users.add(user);
+        // } else {
+        // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName()
+        // : UNKNOWN_USER;
+        // User user = new User(fromUser);
+        // users.add(user);
+        // }
+        // return users;
 
-        CustomUserDetails userDetails = getCurrentCustomUserDetails(principal);
-        com.thinkgem.jeesite.modules.sys.entity.User sysUser =
-                (null != userDetails) ? userDetails.getUser() : new com.thinkgem.jeesite.modules.sys.entity.User();
-        List<User> users = new ArrayList<>();
-        if (null != sysUser.getLoginName()) {
-            User user = new User(sysUser.getId(), sysUser.getUid(), sysUser.getLoginName(), sysUser.getName(),
-                    userDetails.getRole());
-            users.add(user);
-        } else {
-            String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName()
-                    : UNKNOWN_USER;
-            User user = new User(fromUser);
-            users.add(user);
-        }
-
-        return users;
+        return WsChannelInterceptor.getChannelUsers(channelId);
     }
 
     /**

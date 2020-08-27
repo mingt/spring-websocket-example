@@ -33,7 +33,7 @@
             <form class="form-inline">
                 <div class="form-group">
                     <label for="type">自定义频道的 type:</label>
-                    <input type="text" id="type" class="form-control" placeholder="例如 public 或任意字符串">
+                    <input type="text" id="type" class="form-control" value="abc" placeholder="例如 public 或任意字符串">
                 </div>
             </form>
         </div>
@@ -41,7 +41,7 @@
             <form class="form-inline">
                 <div class="form-group" style="margin-bottom: 5px;">
                     <label for="id">自定义频道的 id:</label>
-                    <input type="text" id="id" class="form-control" placeholder="例如 publicId 的值或任意值">
+                    <input type="text" id="id" class="form-control" value="def" placeholder="例如 publicId 的值或任意值">
                 </div>
             </form>
         </div>
@@ -65,9 +65,9 @@
                 </div>
                 <button id="send" class="btn btn-primary" type="submit" title="全部在线用户都会收到">Send 向全部在线用户</button>
                 <button id="sendSelf" class="btn btn-primary" type="button" title="只有自己能收到">Send 仅自己</button>
-                <button id="sendSelfPmOld" class="btn btn-primary" type="button" title="只有自己能收到(old)">Send 仅自己(old)</button>
+                <button id="sendSelfPmOld" class="btn btn-primary" type="button" disabled title="只有自己能收到(整合 RabbitMQ 时才生效)">Send 仅自己 (RabbitMQ)</button>
                 <button id="sendToChannel" class="btn btn-primary" type="button" title="向特当前指定的频道发送">Send 向指定频道</button>
-                <button id="testPublicUsers" class="btn btn-primary" type="button" title="测试显示当前名师空间聊天用户列表">测试显示名师问答用户列表</button>
+                <button id="testPublicUsers" class="btn btn-primary" type="button" title="广播当前频道聊天用户列表">广播当前频道在线用户列表</button>
             </form>
         </div>
     </div>

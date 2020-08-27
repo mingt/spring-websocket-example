@@ -153,4 +153,28 @@ public class User {
     public void setRole(String role) {
         this.role = role;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+
+        User user = (User) o;
+
+        if (!id.equals(user.id)) {
+            return false;
+        }
+        return uid != null ? uid.equals(user.uid) : user.uid == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + (uid != null ? uid.hashCode() : 0);
+        return result;
+    }
 }
