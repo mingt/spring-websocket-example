@@ -4,7 +4,7 @@ package com.websocket.model;
 /**
  * 用户信息，websocket简化
  */
-public class User {
+public class WsUser {
 
     /** UUID */
     private String id;
@@ -20,14 +20,14 @@ public class User {
     /**
      * Instantiates a new User.
      */
-    public User() {}
+    public WsUser() {}
 
     /**
      * Instantiates a new User.
      *
      * @param loginName the login name
      */
-    public User(String loginName) {
+    public WsUser(String loginName) {
         this.loginName = loginName;
     }
 
@@ -40,7 +40,7 @@ public class User {
      * @param name the name
      * @param role the role
      */
-    public User(String id, Integer uid, String loginName, String name, String role) {
+    public WsUser(String id, Integer uid, String loginName, String name, String role) {
         this.id = id;
         this.uid = uid;
         this.loginName = loginName;
@@ -53,7 +53,7 @@ public class User {
      *
      * @param sysUser the sys user
      */
-    public User(com.thinkgem.jeesite.modules.sys.entity.User sysUser) {
+    public WsUser(com.thinkgem.jeesite.modules.sys.entity.User sysUser) {
         if (null != sysUser) {
             this.id = sysUser.getId();
             this.uid = sysUser.getUid();
@@ -159,11 +159,11 @@ public class User {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof User)) {
+        if (!(o instanceof WsUser)) {
             return false;
         }
 
-        User user = (User) o;
+        WsUser user = (WsUser) o;
 
         if (!id.equals(user.id)) {
             return false;

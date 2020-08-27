@@ -1,7 +1,7 @@
 
 package com.websocket.model.command;
 
-import com.websocket.model.User;
+import com.websocket.model.WsUser;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class CallNameCommand extends BaseCommand {
     /** TODO: 为什么要传递学生 ids ? 待确认 */
     private List<String> stuIds;
 
-    private List<User> students; // 待点名的所有学生列表
+    private List<WsUser> students; // 待点名的所有学生列表
 
     /**
      * Gets num.
@@ -63,7 +63,7 @@ public class CallNameCommand extends BaseCommand {
      *
      * @return the students
      */
-    public List<User> getStudents() {
+    public List<WsUser> getStudents() {
         return students;
     }
 
@@ -72,7 +72,7 @@ public class CallNameCommand extends BaseCommand {
      *
      * @param students the students
      */
-    public void setStudents(List<User> students) {
+    public void setStudents(List<WsUser> students) {
         this.students = students;
     }
 
@@ -83,9 +83,9 @@ public class CallNameCommand extends BaseCommand {
      */
     public void setStudentsSys(List<com.thinkgem.jeesite.modules.sys.entity.User> students) {
         if (students != null && students.size() > 0) {
-            List<User> stuList = new ArrayList<>();
+            List<WsUser> stuList = new ArrayList<>();
             for (com.thinkgem.jeesite.modules.sys.entity.User stu : students) {
-                stuList.add(new User(stu.getId(), null, null, stu.getName(), null)); // 只保留id和name字段信息
+                stuList.add(new WsUser(stu.getId(), null, null, stu.getName(), null)); // 只保留id和name字段信息
             }
             this.students = stuList;
         }

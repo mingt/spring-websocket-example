@@ -5,7 +5,7 @@ package com.websocket.controller;
 // import com.anilallewar.microservices.user.service.UserService;
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
-import com.websocket.model.User;
+import com.websocket.model.WsUser;
 import com.websocket.model.chat.Message;
 import com.websocket.model.chat.Room;
 import java.security.Principal;
@@ -73,7 +73,7 @@ public class PublicChatController extends GenericChatController {
         // 下面为了兼容前端（如移动端）旧版本，要注意保留相同的分隔符，直到需要全面切到 . 之后可调整。rabbitmq 不支持 /
         String channelId = "/topic/users" + separator + room.getType() + separator + room.getId();
 
-        List<User> users = getUsers(room, channelId, principal);
+        List<WsUser> users = getUsers(room, channelId, principal);
 
         // 若为人人通，这里查询出管理员 admin 的加进入。并可尝试设置正确的状态（在线或离线）
 

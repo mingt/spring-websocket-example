@@ -4,7 +4,7 @@ package com.websocket.controller;
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
 import com.websocket.intercept.WsChannelInterceptor;
-import com.websocket.model.User;
+import com.websocket.model.WsUser;
 import com.websocket.model.chat.Message;
 import com.websocket.model.chat.Room;
 import java.security.Principal;
@@ -84,7 +84,7 @@ public class GenericChatController extends BaseWebSocketController {
      * @param principal 当前用户
      * @return
      */
-    protected List<User> getUsers(Room room, String channelId, Principal principal) {
+    protected List<WsUser> getUsers(Room room, String channelId, Principal principal) {
         // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
         // // ? principal.getName() : UNKNOWN_USER;
         // // logger.info("Principal with {}", fromUser);
