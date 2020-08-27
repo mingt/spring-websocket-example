@@ -54,7 +54,7 @@ public class GreetingController extends BaseWebSocketController {
         logger.info("Principal with {}", fromUser);
 
         Thread.sleep(1000); // simulated delay
-        return new Greeting("(全部) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! ----- from: " + fromUser);
+        return new Greeting("(全部) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
     }
 
     /**
@@ -79,9 +79,9 @@ public class GreetingController extends BaseWebSocketController {
 
         Thread.sleep(1000); // simulated delay
 
-        // return new Greeting("(自己) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! ----- from: " + fromUser);
+        // return new Greeting("(自己) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser);
         Greeting result =
-                new Greeting("(自己) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! ----- from: " + fromUser);
+                new Greeting("(自己) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
 
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE);
         // fromUser 或 sessionId 或不要这里，都不能匹配
@@ -132,7 +132,7 @@ public class GreetingController extends BaseWebSocketController {
 
         Thread.sleep(1000); // simulated delay
         return new Greeting(
-                "(自己pmOld) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! ----- from: " + fromUser);
+                "(自己pmOld) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
     }
 
     /**
@@ -153,7 +153,7 @@ public class GreetingController extends BaseWebSocketController {
 
         Thread.sleep(1000); // simulated delay
         return new Greeting(
-                "(自己pmOldT1) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! ----- from: " + fromUser);
+                "(自己pmOldT1) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
     }
 
     /**

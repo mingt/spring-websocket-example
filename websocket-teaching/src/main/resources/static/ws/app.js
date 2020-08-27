@@ -41,6 +41,7 @@ function connect() {
     stompClient.connect({"X-Auth-Token": accessToken},
         function (frame) {
             setConnected(true);
+            $('#current-user').text(frame.headers["user-name"]);
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/greetings', function (greeting) { // 这个与后端配置一致 不必要加 context 即不必要 /api
                 console.log('/topic/greetings');
@@ -176,6 +177,7 @@ function connect() {
             });
         },
         function (frame) {
+            $('#current-user').text('(未连接)');
             showGreeting('连接已断开，或请检查 access_token 是否有效: ' + frame);
         }
     );
@@ -186,6 +188,7 @@ function disconnect() {
         stompClient.disconnect();
     }
     setConnected(false);
+    $('#current-user').text('(未连接)');
     console.log("Disconnected");
 }
 
