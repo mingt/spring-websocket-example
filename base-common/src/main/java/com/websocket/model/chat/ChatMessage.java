@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * The type Message.
  */
-public class Message implements Serializable {
+public class ChatMessage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -54,14 +54,14 @@ public class Message implements Serializable {
     /**
      * Instantiates a new Message.
      */
-    public Message() {}
+    public ChatMessage() {}
 
     /**
      * Instantiates a new Message.
      *
      * @param content the content
      */
-    public Message(String content) {
+    public ChatMessage(String content) {
         this.content = content;
     }
 
@@ -72,7 +72,7 @@ public class Message implements Serializable {
      * @param id the id
      * @param content the content
      */
-    public Message(String type, String id, String content) {
+    public ChatMessage(String type, String id, String content) {
         this.type = type;
         this.id = id;
         this.content = content;

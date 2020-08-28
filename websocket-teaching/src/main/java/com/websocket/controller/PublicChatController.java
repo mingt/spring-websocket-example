@@ -6,8 +6,8 @@ package com.websocket.controller;
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
 import com.websocket.model.WsUser;
-import com.websocket.model.chat.Message;
-import com.websocket.model.chat.Room;
+import com.websocket.model.chat.ChatMessage;
+import com.websocket.model.chat.ChatRoom;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +50,7 @@ public class PublicChatController extends GenericChatController {
      */
     @Override
     @MessageMapping("/publicChat/sendMsg")
-    public void sendMsg(Message message, Principal principal) throws Exception {
+    public void sendMsg(ChatMessage message, Principal principal) throws Exception {
         super.sendMsg(message, principal);
     }
 
@@ -64,7 +64,7 @@ public class PublicChatController extends GenericChatController {
      */
     @MessageMapping("/publicChat/users")
     // @SendTo("/topic/users/{type}/{id}")
-    public void publicChatUsers(Room room, Principal principal) {
+    public void publicChatUsers(ChatRoom room, Principal principal) {
 
         if (StringUtils.isBlank(room.getType()) || StringUtils.isBlank(room.getId())) {
             throw new MessagingException("频道type和id不能为空");

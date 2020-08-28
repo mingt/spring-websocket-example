@@ -2,12 +2,11 @@
 package com.websocket.controller;
 
 import com.neoframework.microservices.wsteaching.utils.UserUtils;
-import com.thinkgem.jeesite.common.mapper.JsonMapper;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.websocket.model.WsUser;
 import com.websocket.model.chat.ChatConfig;
-import com.websocket.model.chat.Message;
-import com.websocket.model.chat.Message.MessageType;
+import com.websocket.model.chat.ChatMessage;
+import com.websocket.model.chat.ChatMessage.MessageType;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -130,7 +129,7 @@ public class WebSocketEventListener {
             if (ChatConfig.ifChatRoomRemideOnOffline(channelId)) {
                 Map<String, Object> map = new HashMap<>();
                 map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
-                Message chatMessage = new Message(String.format("%s 进入频道", user.getName()));
+                ChatMessage chatMessage = new ChatMessage(String.format("%s 进入频道", user.getName()));
                 chatMessage.setMessageType(MessageType.JOIN);
                 messagingTemplate.convertAndSend(channelId, chatMessage, map);
             }
@@ -174,7 +173,7 @@ public class WebSocketEventListener {
             if (ChatConfig.ifChatRoomRemideOnOffline(channelIdSub)) {
                 Map<String, Object> map = new HashMap<>();
                 map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
-                Message chatMessage = new Message(String.format("%s 离开频道", user.getName()));
+                ChatMessage chatMessage = new ChatMessage(String.format("%s 离开频道", user.getName()));
                 chatMessage.setMessageType(MessageType.LEAVE);
                 messagingTemplate.convertAndSend(channelIdSub, chatMessage, map);
             }

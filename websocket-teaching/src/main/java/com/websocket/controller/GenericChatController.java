@@ -4,8 +4,8 @@ package com.websocket.controller;
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
 import com.websocket.model.WsUser;
-import com.websocket.model.chat.Message;
-import com.websocket.model.chat.Room;
+import com.websocket.model.chat.ChatMessage;
+import com.websocket.model.chat.ChatRoom;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +55,7 @@ public class GenericChatController extends BaseWebSocketController {
      */
     @MessageMapping("/chat/sendMsg")
     // @SendTo("/topic/room/{type}/{id}")
-    public void sendMsg(Message message, Principal principal) throws Exception {
+    public void sendMsg(ChatMessage message, Principal principal) throws Exception {
         String fromUser =
                 (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName() : UNKNOWN_USER;
         logger.info("Principal with {}", fromUser);
@@ -74,7 +74,7 @@ public class GenericChatController extends BaseWebSocketController {
 
         // TODO: 改为最终消息的相关信息
 
-        Message result = new Message("(频道 " + channelId + ") 消息: " + HtmlUtils.htmlEscape(message.getContent())
+        ChatMessage result = new ChatMessage("(频道 " + channelId + ") 消息: " + HtmlUtils.htmlEscape(message.getContent())
                 + "! ----- from: " + fromUser);
         result.setId(message.getId());
         result.setType(message.getType());
@@ -89,7 +89,7 @@ public class GenericChatController extends BaseWebSocketController {
      * @param principal 当前用户
      * @return users
      */
-    protected List<WsUser> getUsers(Room room, String channelId, Principal principal) {
+    protected List<WsUser> getUsers(ChatRoom room, String channelId, Principal principal) {
         // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
         // // ? principal.getName() : UNKNOWN_USER;
         // // logger.info("Principal with {}", fromUser);

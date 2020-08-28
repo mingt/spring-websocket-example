@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * （虚拟）聊天室 Room ，可理解为聊天频道. 在许多场景下都会有聊天场景，设计上尽量统一接口，统一数据格式等.
  */
-public class Room implements Serializable {
+public class ChatRoom implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 内部编号, 有需要时使用. 暂时以 Controller 的 Atom 元素计算编号 **/

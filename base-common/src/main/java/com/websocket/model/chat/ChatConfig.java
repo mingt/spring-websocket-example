@@ -19,10 +19,10 @@ public class ChatConfig {
      * <p>频道 ID( 或 ID 前缀) => 频道名称。
      * 在需要区分系统的聊天频道时使用。在需要时，频道名称可扩展为频道信息（Room），例如名称，是否上线下线提醒，等等</p>
      */
-    private static final Map<String, Room> CHAT_ROOM_MAP = new HashMap<>();
+    private static final Map<String, ChatRoom> CHAT_ROOM_MAP = new HashMap<>();
 
     static {
-        Room room1 = new Room();
+        ChatRoom room1 = new ChatRoom();
         room1.setName("聊天频道前缀");
         room1.setIfRemindOnOffline(true);
         CHAT_ROOM_MAP.put("/topic/messages", room1);
@@ -63,7 +63,7 @@ public class ChatConfig {
         for (Iterator iterator = CHAT_ROOM_MAP.keySet().iterator(); iterator.hasNext(); ) {
             String key = (String)iterator.next();
             if (channelId.equals(key) || channelId.startsWith(key)) {
-                Room room = CHAT_ROOM_MAP.get(key);
+                ChatRoom room = CHAT_ROOM_MAP.get(key);
 
                 return room != null && room.getIfRemindOnOffline() != null && room.getIfRemindOnOffline();
             }
