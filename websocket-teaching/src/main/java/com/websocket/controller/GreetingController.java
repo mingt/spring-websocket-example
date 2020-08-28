@@ -54,7 +54,7 @@ public class GreetingController extends BaseWebSocketController {
         logger.info("Principal with {}", fromUser);
 
         Thread.sleep(1000); // simulated delay
-        return new Greeting("(全部) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
+        return new Greeting("(全部Greeting) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
     }
 
     /**
