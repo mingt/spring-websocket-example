@@ -185,6 +185,15 @@ function connect() {
 
 function disconnect() {
     if (stompClient !== null) {
+
+        // 尝试断开连接前先 unsubcribe ，使得后端有 unsubcribe 事件
+        if (ifExternalBroker) {
+            var topicMessage = '/topic/messages.' + type + '.' + id;
+        } else {
+            var topicMessage = '/topic/messages/' + type + '/' + id;
+        }
+        stompClient.unsubscribe(topicMessage);
+
         stompClient.disconnect();
     }
     setConnected(false);

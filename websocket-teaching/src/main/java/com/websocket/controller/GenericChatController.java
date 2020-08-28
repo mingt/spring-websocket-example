@@ -3,7 +3,6 @@ package com.websocket.controller;
 
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
-import com.websocket.intercept.WsChannelInterceptor;
 import com.websocket.model.WsUser;
 import com.websocket.model.chat.Message;
 import com.websocket.model.chat.Room;
@@ -26,12 +25,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.util.HtmlUtils;
 
+/**
+ * The type Generic chat controller.
+ */
 @Controller
 // 不好扩展 //@MessageMapping("/chat")
 public class GenericChatController extends BaseWebSocketController {
 
     private static final Logger logger = LoggerFactory.getLogger(GenericChatController.class);
 
+    /**
+     * The constant roomNo.
+     */
     protected static AtomicInteger roomNo = new AtomicInteger(0);
 
     @Autowired
@@ -82,7 +87,7 @@ public class GenericChatController extends BaseWebSocketController {
      * @param room 带频道信息
      * @param channelId 频道ID
      * @param principal 当前用户
-     * @return
+     * @return users
      */
     protected List<WsUser> getUsers(Room room, String channelId, Principal principal) {
         // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
@@ -105,14 +110,14 @@ public class GenericChatController extends BaseWebSocketController {
         // }
         // return users;
 
-        return WsChannelInterceptor.getChannelUsers(channelId);
+        return WebSocketEventListener.getChannelUsers(channelId);
     }
 
     /**
      * 错误情况，只发给当前用户.
      *
      * @param exception 错误异常
-     * @return
+     * @return string
      */
     @MessageExceptionHandler
     @SendToUser(destinations = "/queue/errors", broadcast = false)

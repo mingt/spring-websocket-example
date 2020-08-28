@@ -2,28 +2,22 @@
 package com.websocket.intercept;
 
 import com.neoframework.common.constant.SecurityConstant;
-import com.neoframework.microservices.wsteaching.utils.UserUtils;
-import com.thinkgem.jeesite.modules.sys.entity.User;
-import com.websocket.model.WsUser;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptorAdapter;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -36,14 +30,6 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
  */
 public class WsChannelInterceptor extends ChannelInterceptorAdapter {
     private static final Logger logger = LoggerFactory.getLogger(WsChannelInterceptor.class);
-
-    /**
-     * 用于维护在线用户的映射（Key:频道id，Value:该频道在线用户列表）.
-     *
-     * <p>TODO: (重要) 当前只是实现了单机（或说单个应用实例）中的在线用户列表。需要支持集群的话，要更多补充、扩展。</p>
-     *
-     */
-    private static final Map<String, List<WsUser>> ONLINE_USERS_MAP = new ConcurrentHashMap<>();
 
     /**
      * The Token services.
@@ -78,83 +64,37 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
             if (StringUtils.isNotEmpty(jwtToken)) {
                 sessionAttributes.put(CsrfToken.class.getName(),
                     new DefaultCsrfToken("Auth-Token", "Auth-Token", jwtToken));
-                OAuth2Authentication authToken = tokenServices.loadAuthentication(jwtToken);
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-                accessor.setUser(authToken);
+
+                // TO-DO: (重要) 这里应该捕获可能的异常，并适当做处理。当前在线上生产服经常看到的日志：
+                // org.springframework.messaging.MessageDeliveryException: Failed to send message to
+                // ExecutorSubscribableChannel[clientInboundChannel]; 等，可能与这里有关，或不知可以从这里得到启发，可能在某此
+                // 处理没有捕获必要及时处理的异常
+                //
+                // 因为前端订阅对终端用户应该透明，这里适当的方式可能系提示用户重新登录，使用未过期/合法的token重启请求
+                try {
+                    OAuth2Authentication authToken = tokenServices.loadAuthentication(jwtToken);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    accessor.setUser(authToken);
+                } catch (InvalidTokenException | AuthenticationException e) {
+                    throw new MessagingException("请重新登录重试");
+                }
             } else {
                 // 这表示没有有效的token, 结合 {@link #configureInbound(MessageSecurityMetadataSourceRegistry messages)}
                 // 处理好 websocket 的基本安全问题
             }
         } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) { // 订阅频道
             logger.info("StompCommand.SUBSCRIBE");
-            Authentication principal = userAuth.getUserAuthentication();
-            User user = UserUtils.getCurrentSysUser(principal);
-            if (StringUtils.isNotBlank(channelId) && user != null) {
-                WsUser wsUser = new WsUser(user);
 
-                // ahming notes: 注意极端临界条件，活用 interface ConcurrentMap.putIfAbsent, replace 等方法保证数据一致
-                while (true) {
-                    List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
-                    // 下面是要区分是否为 null ,而不是数组 null 或非 null 但 size = 0
-                    if (channelUsers == null) { // wrong: (CollectionUtils.isEmpty(channelUsers)) {
-                        // 如果当前频道用户列表为空，则新创建一个频道用户列表，并将当前用户添加进去
-                        channelUsers = new ArrayList<>();
-                        channelUsers.add(wsUser);
-                        // 下面与 null 比较，要注意成功新增才返回 null ，如果已存在才非空，返回已存在的值
-                        if ((ONLINE_USERS_MAP.putIfAbsent(channelId, channelUsers)) == null) {
-                            break;
-                        }
-                    } else {
-                        if (!channelUsers.contains(wsUser)) {
-                            // 如果当前频道用户列表中不包含当前用户，则将其加入频道用户列表中去
-                            List<WsUser> newChannelUsers = new ArrayList<>(channelUsers);
-                            // newChannelUsers.addAll(channelUsers);
-                            newChannelUsers.add(wsUser);
-                            if (ONLINE_USERS_MAP.replace(channelId, channelUsers, newChannelUsers)) {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    }
-                }
-            }
         } else if (StompCommand.UNSUBSCRIBE.equals(accessor.getCommand())) { // 取消订阅
             logger.info("StompCommand.UNSUBSCRIBE");
-            User user = UserUtils.getCurrentSysUser(userAuth.getUserAuthentication());
-            if (StringUtils.isNotBlank(channelId) && user != null) {
-                WsUser wsUser = new WsUser(user);
-                List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
-                if (CollectionUtils.isNotEmpty(channelUsers)) {
-                    // 如果当前频道用户列表中包含当前用户，则将其从频道用户列表中移除
-                    channelUsers.remove(wsUser);
-                }
-            }
+
         } else if (StompCommand.DISCONNECT.equals(accessor.getCommand())) { // 断开连接
             logger.info("StompCommand.DISCONNECT");
-            User user = UserUtils.getCurrentSysUser(userAuth.getUserAuthentication());
-            if (user != null && ONLINE_USERS_MAP.size() > 0) {
-                WsUser wsUser = new WsUser(user);
-                // 断开WebSocket连接时，将从所有频道用户列表中将当前用户移除
-                for (List<WsUser> userList : ONLINE_USERS_MAP.values()) {
-                    userList.remove(wsUser);
-                }
-            }
+
+            // 根据 Spring 文档提示， StompCommand.DISCONNECT 可能会被消费多次，这里多次被调用，所以建议改为
+            // com.websocket.controller.WebSocketEventListener.handleWebSocketDisconnectListener 去处理
         }
         return message;
     }
 
-    /**
-     * 从 ONLINE_USERS_MAP 返回当前通道的在线用户.
-     *
-     * @param channelId 通道 ID
-     * @return 在线用户列表 channel users
-     */
-    public static List<WsUser> getChannelUsers(String channelId) {
-        List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
-        if (channelUsers == null) {
-            return Collections.emptyList();
-        }
-        return channelUsers;
-    }
 }
