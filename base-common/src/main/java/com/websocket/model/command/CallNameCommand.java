@@ -15,12 +15,20 @@ public class CallNameCommand extends BaseCommand {
      */
     public static final String TYPE = "callName";
 
+    /**
+     * 数量。
+     */
     private Integer num;
 
-    /** TODO: 为什么要传递学生 ids ? 待确认 */
+    /**
+     * ID列表。
+     */
     private List<String> stuIds;
 
-    private List<WsUser> students; // 待点名的所有学生列表
+    /**
+     * 待点名的所有学生列表。
+     */
+    private List<WsUser> students;
 
     /**
      * Gets num.

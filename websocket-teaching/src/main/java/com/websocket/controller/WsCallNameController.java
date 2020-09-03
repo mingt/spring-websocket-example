@@ -50,11 +50,12 @@ public class WsCallNameController extends BaseCommandController {
     /**
      * 点名命令响应.
      *
-     * @param callNameParam 点名参数
-     * @param principal
+     * <p> SendTo: "/topic/callname/" + classId
+     * 对象： 课堂全部人员都订阅，客户端只有点名返回结果包含自己时处理。或待再确认
+     * </p>
      *
-     *        SendTo: "/topic/callname/" + classId
-     *        对象： 课堂全部人员都订阅，客户端只有点名返回结果包含自己时处理。或待再确认
+     * @param callNameParam 点名参数
+     * @param principal 当前用户
      */
     @MessageMapping("/teaching/callname/command")
     public void command(CallNameParam callNameParam, Principal principal) {
@@ -117,7 +118,7 @@ public class WsCallNameController extends BaseCommandController {
      * 错误情况，只发给当前用户.
      *
      * @param exception 错误异常
-     * @return
+     * @return Error message
      */
     @MessageExceptionHandler
     @SendToUser(destinations = "/queue/errors", broadcast = false)

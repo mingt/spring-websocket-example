@@ -20,7 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.MimeTypeUtils;
 
 /**
- * 课堂：计时器 ws 控制器.
+ * 通用指令 ws 控制器.
  */
 @Controller
 public class GenericCommandController extends BaseCommandController<BaseCommand> {

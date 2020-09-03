@@ -53,8 +53,10 @@ public class GreetingController extends BaseWebSocketController {
                 (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName() : UNKNOWN_USER;
         logger.info("Principal with {}", fromUser);
 
-        Thread.sleep(1000); // simulated delay
-        return new Greeting("(全部Greeting) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
+        // 202008 为了压测，把 sleep 去掉，换回默认的 hello 内容
+        // Thread.sleep(1000); // simulated delay
+        // return new Greeting("(全部Greeting) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser);
+        return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
     }
 
     /**

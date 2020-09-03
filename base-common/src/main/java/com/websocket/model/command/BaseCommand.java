@@ -20,6 +20,11 @@ public class BaseCommand {
     /** 动作，不同类型带不同的动作 */
     private String action;
 
+    /**
+     * 可由前端自定义的可变指定参数.
+     *
+     * <p>需要时，前端自定义可变参数，在多端前端交互时使用。参数的意义，由前端确定和使用，后端只是帮助传递</p>
+     */
     private Map<String, Object> remarks;
 
     /**

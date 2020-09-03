@@ -54,7 +54,7 @@ public class GenericChatController extends BaseWebSocketController {
      * @throws Exception Exception
      */
     @MessageMapping("/chat/sendMsg")
-    // @SendTo("/topic/room/{type}/{id}")
+    // @SendTo("/topic/room/{type}/{id}")请重新登录重试
     public void sendMsg(ChatMessage message, Principal principal) throws Exception {
         String fromUser =
                 (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName() : UNKNOWN_USER;

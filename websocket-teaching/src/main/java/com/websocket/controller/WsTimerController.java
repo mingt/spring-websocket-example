@@ -37,11 +37,11 @@ public class WsTimerController extends BaseCommandController {
     /**
      * 计时器指令响应.
      *
+     * <p>SendTo: "/topic/timer/" + classId
+     * 对象： 看似一般只有 PC 端订阅？</p>
+     *
      * @param timerParam 计时器参数
      * @param principal 用户信息
-     *
-     *        SendTo: "/topic/timer/" + classId
-     *        对象： 看似一般只有 PC 端订阅？
      */
     @MessageMapping("/teaching/timer/command")
     public void command(TimerParam timerParam, Principal principal) {
@@ -65,7 +65,7 @@ public class WsTimerController extends BaseCommandController {
      * 错误情况，只发给当前用户.
      *
      * @param exception 错误异常
-     * @return
+     * @return Error message
      */
     @MessageExceptionHandler
     @SendToUser(destinations = "/queue/errors", broadcast = false)
