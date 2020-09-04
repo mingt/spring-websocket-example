@@ -85,6 +85,18 @@ dependencies {
     compile("org.webjars:stomp-websocket:2.3.3")
     compile("org.webjars:bootstrap:3.3.7")
     compile("org.webjars:jquery:3.1.0")
+
+//    // rabbitmq + stomp
+//    // https://mvnrepository.com/artifact/io.projectreactor/reactor-core // 3.2.9.RELEASE
+//    // SpringBoot 2+ // compile("io.projectreactor:reactor-core:3.2.16.RELEASE")
+//    compile("io.projectreactor:reactor-core:2.0.8.RELEASE")
+//    // https://mvnrepository.com/artifact/io.netty/netty-all // 4.1.42.Final
+//    // SpringBoot 2+ // compile("io.netty:netty-all:4.1.48.Final")
+//    compile("io.netty:netty-all:4.0.56.Final")
+//    // SpringBoot 2+ // https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty // 0.8.11.RELEASE
+//    // SpringBoot 2+ // compile("io.projectreactor.netty:reactor-netty:0.8.17.RELEASE")
+//    // https://mvnrepository.com/artifact/io.projectreactor/reactor-net
+//    compile("io.projectreactor:reactor-net:2.0.8.RELEASE")
 }
 
 jar {
