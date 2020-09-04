@@ -5,7 +5,7 @@ var TeachingWsApp = {
         app.options = {};
 
         // 是否使用 RabbitMQ 等外部Broker。如果不是，则为SimpleBroker，为兼容旧版本，名称分隔符沿用 /，否则使用点号.
-        app.ifExternalBroker = true; // false;
+        app.ifExternalBroker = false;
         // var topicMessage;
         // var topicUser;
 
@@ -19,6 +19,35 @@ var TeachingWsApp = {
         var classId, paramX;
         var cmdJson=$('#command').val();
         $('#command').val($.trim(cmdJson));
+
+        app.checkIfExternalBroker = function() {
+            var checkAj = $.ajax( {
+                url:'/api/wssys/ifExternalBroker',
+                // headers : {'Authorization':'Bearer {{access-token}}'}, // post
+                // data:{
+                //     grant_type:"password",
+                //     username:loginName,
+                //     password:password
+                // },
+                type: 'get',
+                async : false,
+                cache:false,
+                dataType:'json',
+                success:function(data) {
+                    if (data && data.ifExternalBroker === true) {
+                        _self.ifExternalBroker = true;
+                        // $( "#sendSelfPmOld" ).prop('disabled', false);
+                        console.log("ifExternalBroker true");
+                    } else {
+                        // $( "#sendSelfPmOld" ).prop('disabled', true);
+                        console.log("ifExternalBroker false");
+                    }
+                },
+                error : function(e) {
+                    alert("获取token异常：" + e.responseText);
+                }
+            });
+        };
 
         app.setConnected = function(connected) {
             $("#connect").prop("disabled", connected);
@@ -350,6 +379,8 @@ $(function () {
     });
 
     var teachingWsApp = TeachingWsApp.init();
+
+    teachingWsApp.checkIfExternalBroker();
 
     $( "#connect" ).click(function() { teachingWsApp.connect(); });
     $( "#disconnect" ).click(function() { teachingWsApp.disconnect(); });

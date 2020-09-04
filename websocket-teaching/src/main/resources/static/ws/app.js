@@ -4,7 +4,35 @@ var type, id;
 
 // 是否使用 RabbitMQ 等外部Broker。如果不是，则为SimpleBroker，为兼容旧版本，名称分隔符沿用 /，否则使用点号.
 var ifExternalBroker = false;
+var topicMessage;
+var topicUser;
 
+function checkIfExternalBroker() {
+    var aj = $.ajax( {
+        url:'/api/wssys/ifExternalBroker',
+        // headers : {'Authorization':'Bearer {{access-token}}'}, // post
+        // data:{
+        //     grant_type:"password",
+        //     username:loginName,
+        //     password:password
+        // },
+        type: 'get',
+        async : false,
+        cache:false,
+        dataType:'json',
+        success:function(data) {
+            if (data && data.ifExternalBroker === true) {
+                ifExternalBroker = true;
+                $( "#sendSelfPmOld" ).prop('disabled', false);
+            } else {
+                $( "#sendSelfPmOld" ).prop('disabled', true);
+            }
+        },
+        error : function(e) {
+            alert("获取token异常：" + e.responseText);
+        }
+    });
+}
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
@@ -55,30 +83,30 @@ function connect() {
                 }
 
             });
-            // rabbitmq
-            stompClient.subscribe('/amq/queue/test', function (greeting) {
-                console.log('/amq/queue/test');
-                try {
-                    var content = JSON.parse(greeting.body).content;
-                    if (content) {
-                        showGreeting(content);
-                    }
-                } catch (ex) {
-                    console.log(greeting.body);
-                }
-            });
-            // rabbitmq
-            stompClient.subscribe('/user/amq/queue/test', function (greeting) {
-                console.log('/user/amq/queue/test');
-                try {
-                    var content = JSON.parse(greeting.body).content;
-                    if (content) {
-                        showGreeting(content);
-                    }
-                } catch (ex) {
-                    console.log(greeting.body);
-                }
-            });
+            // // rabbitmq
+            // stompClient.subscribe('/amq/queue/test', function (greeting) {
+            //     console.log('/amq/queue/test');
+            //     try {
+            //         var content = JSON.parse(greeting.body).content;
+            //         if (content) {
+            //             showGreeting(content);
+            //         }
+            //     } catch (ex) {
+            //         console.log(greeting.body);
+            //     }
+            // });
+            // // rabbitmq
+            // stompClient.subscribe('/user/amq/queue/test', function (greeting) {
+            //     console.log('/user/amq/queue/test');
+            //     try {
+            //         var content = JSON.parse(greeting.body).content;
+            //         if (content) {
+            //             showGreeting(content);
+            //         }
+            //     } catch (ex) {
+            //         console.log(greeting.body);
+            //     }
+            // });
             // rabbitmq
             stompClient.subscribe('/user/exchange/amq.direct/greetings', function (greeting) {
                 console.log('/user/exchange/amq.direct/greetings');
@@ -139,9 +167,9 @@ function connect() {
             // 频道
             // stompClient.subscribe('/topic/messages/' + type + '/' + id, function (msg) {
             if (ifExternalBroker) {
-                var topicMessage = '/topic/messages.' + type + '.' + id;
+                topicMessage = '/topic/messages.' + type + '.' + id;
             } else {
-                var topicMessage = '/topic/messages/' + type + '/' + id;
+                topicMessage = '/topic/messages/' + type + '/' + id;
             }
             stompClient.subscribe(topicMessage, function (msg) {
                 console.log(topicMessage);
@@ -156,9 +184,9 @@ function connect() {
             });
             // stompClient.subscribe('/topic/users/' + type + '/' + id, function (result) {
             if (ifExternalBroker) {
-                var topicUser = '/topic/users.' + type + '.' + id;
+                topicUser = '/topic/users.' + type + '.' + id;
             } else {
-                var topicUser = '/topic/users/' + type + '/' + id;
+                topicUser = '/topic/users/' + type + '/' + id;
             }
             stompClient.subscribe(topicUser, function (result) {
                 console.log(topicUser);
@@ -187,11 +215,11 @@ function disconnect() {
     if (stompClient !== null) {
 
         // 尝试断开连接前先 unsubcribe ，使得后端有 unsubcribe 事件
-        if (ifExternalBroker) {
-            var topicMessage = '/topic/messages.' + type + '.' + id;
-        } else {
-            var topicMessage = '/topic/messages/' + type + '/' + id;
-        }
+        // if (ifExternalBroker) { // 20200904 不必要了，前面已设定
+        //     topicMessage = '/topic/messages.' + type + '.' + id;
+        // } else {
+        //     topicMessage = '/topic/messages/' + type + '/' + id;
+        // }
         stompClient.unsubscribe(topicMessage);
 
         stompClient.disconnect();
@@ -247,5 +275,8 @@ $(function () {
     $( "#sendSelfPmOld" ).click(function() { sendNameSelfPmOld(); });
     $( "#sendToChannel" ).click(function() { sendToChannel(); });
     $( "#testPublicUsers" ).click(function() { updateUsers(); });
+
+    // 先查询是否外部缓存
+    checkIfExternalBroker();
 });
 

@@ -39,7 +39,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .authorizeRequests()
                 .antMatchers("/sys/version",
                     "/statCrashLog", // TODO: 仅测试
-                    "/topic/**", "/app/**", "/wschat/**", "/wsteaching/**" // gs-guide-websocket
+                    "/topic/**", "/app/**", "/wschat/**", "/wsteaching/**", "/wssys/ifExternalBroker" // gs-guide-websocket
                 )
 
                 .permitAll().anyRequest().authenticated().and().logout().permitAll().and().formLogin().permitAll().and()
