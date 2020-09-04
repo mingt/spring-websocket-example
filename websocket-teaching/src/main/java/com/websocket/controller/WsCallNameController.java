@@ -2,6 +2,7 @@
 package com.websocket.controller;
 
 import com.thinkgem.jeesite.modules.sys.entity.User;
+import com.websocket.config.StompProperties;
 import com.websocket.model.command.CallNameCommand;
 import com.websocket.model.command.CommandConstant;
 import com.websocket.model.teaching.CallNameParam;
@@ -34,6 +35,9 @@ public class WsCallNameController extends BaseCommandController {
 
     // @Autowired
     private SimpMessageSendingOperations messagingTemplate;
+
+    @Autowired
+    private StompProperties stompProperties;
 
     // spring提供的发送消息模板
     // @Autowired
@@ -76,12 +80,13 @@ public class WsCallNameController extends BaseCommandController {
         // }
         // List<User> students = userService.getDetailUserInfoList(
         //     new User(null, null, new Office(classroom.getClassId())), ElearningConstant.UserRole.STUDENT);
+
+        Integer num = callNameCommand.getNum() == null || callNameCommand.getNum() <= 0 || callNameCommand.getNum() > 20
+            ? 2 : callNameCommand.getNum();
         List<User> students = new ArrayList<>();
-        students.add(new User("1001", "学生1"));
-        students.add(new User("1002", "学生2"));
-        students.add(new User("1003", "学生3"));
-        students.add(new User("1004", "学生4"));
-        students.add(new User("1005", "学生5"));
+        for (int i = 1; i <= num; i++) {
+            students.add(new User("100" + i, "学生" + i));
+        }
 
         if (CommandConstant.CallNameAction.START.equals(callNameCommand.getAction())) {
             callNameCommand.setStudentsSys(students);
@@ -110,7 +115,12 @@ public class WsCallNameController extends BaseCommandController {
 
         Map<String, Object> map = new HashMap<>();
         map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
-        messagingTemplate.convertAndSend("/topic/callname/" + classId, callNameParam, map);
+
+        if (StompProperties.RABBITMQ.equals(stompProperties.getExternalBroker())) {
+            messagingTemplate.convertAndSend("/topic/callname." + classId, callNameParam, map);
+        } else {
+            messagingTemplate.convertAndSend("/topic/callname/" + classId, callNameParam, map);
+        }
 
     }
 

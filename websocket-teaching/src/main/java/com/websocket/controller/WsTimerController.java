@@ -1,6 +1,7 @@
 
 package com.websocket.controller;
 
+import com.websocket.config.StompProperties;
 import com.websocket.model.command.TimerCommand;
 import com.websocket.model.teaching.TimerParam;
 import java.security.Principal;
@@ -28,6 +29,9 @@ public class WsTimerController extends BaseCommandController {
     private static final Logger logger = LoggerFactory.getLogger(WsTimerController.class);
     // @Autowired
     private SimpMessageSendingOperations messagingTemplate;
+
+    @Autowired
+    private StompProperties stompProperties;
 
     @Autowired
     public WsTimerController(SimpMessageSendingOperations messagingTemplate) {
@@ -58,7 +62,11 @@ public class WsTimerController extends BaseCommandController {
         // 计时器的指令基本是直接转发过去就可以，没有什么业务逻辑
         Map<String, Object> map = new HashMap<>();
         map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
-        messagingTemplate.convertAndSend("/topic/timer/" + classId, timerParam, map);
+        if (StompProperties.RABBITMQ.equals(stompProperties.getExternalBroker())) {
+            messagingTemplate.convertAndSend("/topic/timer." + classId, timerParam, map);
+        } else {
+            messagingTemplate.convertAndSend("/topic/timer/" + classId, timerParam, map);
+        }
     }
 
     /**

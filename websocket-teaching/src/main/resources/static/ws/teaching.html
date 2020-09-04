@@ -84,8 +84,11 @@
         <form class="">
             <div class="form-group">
                 <label for="command">指令参数(json):</label>
-                <textarea id="command" class="form-control" rows="8" placeholder=''>{"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}</textarea>
-                <p class="help-inline" style="color:#737373;">送出的完整commandParam: {"classId": "111222","command": {"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}}</p>
+                <textarea id="command" class="form-control" rows="3" placeholder=''>{"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}</textarea>
+                <p class="help-inline" style="color:#aaa;">送出的完整 commandParam 样例: {"classId": "111222","command": {"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}}</p>
+                <p class="help-inline" >（要测试时，把下面 json 替换到输入框再点击对应的指令按钮）</p>
+                <p class="help-inline" >计时器 json 样例: {"fromPlatform": "pc","role": "ROLE_TEACHER","type": "timer","action": "start","subType": "countDown"}</p>
+                <p class="help-inline" >点名 json 样例: {"fromPlatform": "pc","role": "ROLE_TEACHER","type": "callName","action": "start","num":3}</p>
             </div>
         </form>
         </div>
@@ -98,15 +101,10 @@
                     <label for="name">要发送的内容 &nbsp;&nbsp;&nbsp;:</label>
                     <input type="text" id="name" class="form-control" placeholder="">
                 </div>
-                <button id="btn-class" class="btn btn-info" type="button" title="课堂指令">发送课堂指令</button>
-                <button id="btn-timer" class="btn btn-info" type="button" title="计时器指令">发送计时器指令</button>
-                <button id="btn-callName" class="btn btn-info" type="button" title="点名指令">发送点名指令</button>
-                <button id="btn-resource" class="btn btn-info" type="button" title="资源指令">发送资源指令</button>
-                <button id="btn-homework" class="btn btn-info" type="button" title="作业指令">发送作业指令</button>
-                <button id="btn-vote" class="btn btn-info" type="button" title="投票指令">发送投票指令</button>
+                <button id="btn-timer" class="btn btn-success" type="button" title="计时器指令">发送计时器指令</button>
+                <button id="btn-callName" class="btn btn-success" type="button" title="点名指令">发送点名指令</button>
                 <br><br>
                 <button id="testGenericOnlyCmd" class="btn btn-primary" type="button" >测试/topic/cmd</button>
-                <button id="testGenericTopic" class="btn btn-primary" type="button" >测试普通topic频道</button>
                 <button id="testGenericUsers" class="btn btn-primary" type="button" >测试发送多用户</button>
                 <button id="testGenericSelf" class="btn btn-primary" type="button" >测试自己收发</button>
             </form>

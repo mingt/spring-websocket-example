@@ -4,6 +4,11 @@ var TeachingWsApp = {
         app.name = '授课ws Demo';
         app.options = {};
 
+        // 是否使用 RabbitMQ 等外部Broker。如果不是，则为SimpleBroker，为兼容旧版本，名称分隔符沿用 /，否则使用点号.
+        app.ifExternalBroker = true; // false;
+        // var topicMessage;
+        // var topicUser;
+
         var _self = app;
 
         // 私有属性
@@ -34,13 +39,13 @@ var TeachingWsApp = {
         app.connect = function() {
             accessToken = '';   //连接前清空旧token
             loginName = $.trim($('#loginName').val());
-            if (loginName.length == 0) {
+            if (loginName.length === 0) {
                 showGreeting('请提供登录名');
                 alert('请提供登录名');
                 return;
             }
             password = $.trim($('#password').val());
-            if (password.length == 0) {
+            if (password.length === 0) {
                 showGreeting('登录密码未提供，默认使用123456作为登录密码尝试登录');
                 alert('未提供登录密码，默认使用123456尝试登录');
                 password='123456';
@@ -48,7 +53,7 @@ var TeachingWsApp = {
             }
             var aj = $.ajax( {
                 url:'/userauth/oauth/token',
-                headers : {'Authorization':'Basic YWNtZTphY21lc2VjcmV0'},
+                headers : {'Authorization':'Basic YWNtZTphY21lc2VjcmV0'}, // acme
                 data:{
                     grant_type: "password",
                     username:loginName,
@@ -113,8 +118,13 @@ var TeachingWsApp = {
                         }
                     });
                     // 频道
-                    stompClient.subscribe('/topic/timer/' + classId, function (result) {
-                        showGreeting('/topic/timer/' + classId + ' 返回结果：' + result.body);
+                    if (_self.ifExternalBroker) {
+                        var topicTimer = '/topic/timer.' + classId;
+                    } else {
+                        var topicTimer = '/topic/timer/' + classId;
+                    }
+                    stompClient.subscribe(topicTimer, function (result) {
+                        showGreeting(topicTimer + ' 返回结果：' + result.body);
                         var commandParam = JSON.parse(result.body);
                         if (commandParam) {
                             showGreeting('解释出 classId = ' + commandParam.classId, 'end');
@@ -122,31 +132,14 @@ var TeachingWsApp = {
                             showGreeting('返回结果出错了', 'end');
                         }
                     });
-                    stompClient.subscribe('/topic/teaching/' + classId, function (result) {
-                        showGreeting('/topic/teaching/' + classId + ' 返回结果：' + result.body);
-                        var commandParam = JSON.parse(result.body);
-                        if (commandParam) {
-                            var command = commandParam.command;
-                            if (!command)  {
-                                showGreeting('返回结果有误没有command', 'end');
-                                return;
-                            }
-                            if (command.type === 'resource') {
-                                if (command.action === 'change') {
-                                    // TODO: something
-                                    showGreeting('资源指令： change： attType： ' + command.attrType + ' ...', 'end');
-                                }
-                            }
-                            showGreeting('解释出 classId = ' + commandParam.classId, 'end');
-                        } else {
-                            showGreeting('返回结果有误', 'end');
-                        }
-                    });
-                    stompClient.subscribe('/topic/homework/' + classId, function (result) {
-                        showGreeting('/topic/homework/' + classId + ' 返回结果：' + result.body, 'end');
-                    });
-                    stompClient.subscribe('/topic/callname/' + classId, function (result) {
-                        showGreeting('/topic/callname/' + classId + '返回结果：' + result.body);
+                    // 点名
+                    if (_self.ifExternalBroker) {
+                        var topicCallName = '/topic/callname.' + classId;
+                    } else {
+                        var topicCallName = '/topic/callname/' + classId;
+                    }
+                    stompClient.subscribe(topicCallName, function (result) {
+                        showGreeting(topicCallName + '返回结果：' + result.body);
                         var commandParam = JSON.parse(result.body);
                         if (commandParam) {
                             showGreeting('解释出 classId = ' + commandParam.classId);
@@ -189,30 +182,6 @@ var TeachingWsApp = {
             _self.connect();
         };
 
-        app.classCommand = function() {
-            // 这个与后端配置一致 不必要加 context 即不必要 /api/app/hello
-            if (stompClient) {
-                var command = getCommand();
-                if (!command) {
-                    return;
-                }
-                if (!connecting) {
-                    showGreeting('未连接');
-                    return;
-                }
-                // 根据输出指令是完整的commandParam还是只有command
-                if (command.command) { // commandParam
-                    var body = JSON.stringify(command);
-                } else { // command
-                    var body = JSON.stringify({
-                        "classId": classId,
-                        "command": command
-                    });
-                }
-                showGreeting('送出的指令：' + body, 'start');
-                stompClient.send("/app/teaching/class/command", {}, body);
-            }
-        };
         app.timerCommand = function() {
             if (stompClient) {
                 var command = getCommand();
@@ -262,75 +231,6 @@ var TeachingWsApp = {
                 stompClient.send("/app/teaching/callname/command", {}, body);
             }
         };
-        app.resourceCommand = function() {
-            if (stompClient) {
-                var command = getCommand();
-                if (!command) {
-                    return;
-                }
-                if (!connecting) {
-                    showGreeting('未连接');
-                    return;
-                }
-                // 根据输出指令是完整的commandParam还是只有command
-                if (command.command) { // commandParam
-                    var body = JSON.stringify(command);
-                } else { // command
-                    var body = JSON.stringify({
-                        "classId": classId,
-                        "command": command
-                    });
-                }
-                showGreeting('送出的指令：' + body, 'start');
-                stompClient.send("/app/teaching/resource/command", {}, body);
-            }
-        };
-        app.homeworkCommand = function() {
-            if (stompClient) {
-                var command = getCommand();
-                if (!command) {
-                    return;
-                }
-                if (!connecting) {
-                    showGreeting('未连接');
-                    return;
-                }
-                // 根据输出指令是完整的commandParam还是只有command
-                if (command.command) { // commandParam
-                    var body = JSON.stringify(command);
-                } else { // command
-                    var body = JSON.stringify({
-                        "classId": classId,
-                        "command": command
-                    });
-                }
-                showGreeting('送出的指令：' + body, 'start');
-                stompClient.send("/app/teaching/homework/command", {}, body);
-            }
-        };
-        app.voteCommand = function() {
-            if (stompClient) {
-                var command = getCommand();
-                if (!command) {
-                    return;
-                }
-                if (!connecting) {
-                    showGreeting('未连接');
-                    return;
-                }
-                // 根据输出指令是完整的commandParam还是只有command
-                if (command.command) { // commandParam
-                    var body = JSON.stringify(command);
-                } else { // command
-                    var body = JSON.stringify({
-                        "classId": classId,
-                        "command": command
-                    });
-                }
-                showGreeting('送出的指令：' + body, 'start');
-                stompClient.send("/app/teaching/vote/command", {}, body);
-            }
-        };
 
         app.testGenericOnlyCmd = function() {
             if (stompClient) {
@@ -352,30 +252,6 @@ var TeachingWsApp = {
                     });
                 }
                 showGreeting('testGenericOnlyCmd 必需的参数只有command.type 送出的指令：' + body, 'start');
-                stompClient.send("/app/command", {}, body);
-            }
-        };
-        app.testGenericTopic = function() {
-            if (stompClient) {
-                var command = getCommand();
-                if (!command) {
-                    return;
-                }
-                if (!connecting) {
-                    showGreeting('未连接');
-                    return;
-                }
-                // 根据输出指令是完整的commandParam还是只有command
-                if (command.command) { // commandParam
-                    var body = JSON.stringify(command);
-                } else { // command
-                    var body = JSON.stringify({
-                        "classId": classId,
-                        "command": command,
-                        "chan": '/topic/teaching/' + classId
-                    });
-                }
-                showGreeting('testGenericTopic chan以topic开头 送出的指令：' + body, 'start');
                 stompClient.send("/app/command", {}, body);
             }
         };
@@ -478,12 +354,8 @@ $(function () {
     $( "#connect" ).click(function() { teachingWsApp.connect(); });
     $( "#disconnect" ).click(function() { teachingWsApp.disconnect(); });
     $( "#reconnect" ).click(function() { teachingWsApp.reconnect(); });
-    $( "#btn-class" ).click(function() { teachingWsApp.classCommand(); });
     $( "#btn-timer" ).click(function() { teachingWsApp.timerCommand(); });
     $( "#btn-callName" ).click(function() { teachingWsApp.callNameCommand(); });
-    $( "#btn-resource" ).click(function() { teachingWsApp.resourceCommand(); });
-    $( "#btn-homework" ).click(function() { teachingWsApp.homeworkCommand(); });
-    $( "#btn-vote" ).click(function() { teachingWsApp.voteCommand(); });
 
     $( "#testGenericOnlyCmd" ).click(function() { teachingWsApp.testGenericOnlyCmd(); });
     $( "#testGenericTopic" ).click(function() { teachingWsApp.testGenericTopic(); });
