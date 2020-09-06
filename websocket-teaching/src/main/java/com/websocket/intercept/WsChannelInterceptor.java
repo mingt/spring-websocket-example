@@ -92,7 +92,7 @@ public class WsChannelInterceptor extends ChannelInterceptorAdapter {
             logger.info("StompCommand.DISCONNECT");
 
             // 根据 Spring 文档提示， StompCommand.DISCONNECT 可能会被消费多次，这里多次被调用，所以建议改为
-            // com.websocket.controller.WebSocketEventListener.handleWebSocketDisconnectListener 去处理
+            // com.websocket.listener.WebSocketEventListener.handleWebSocketDisconnectListener 去处理
         }
         return message;
     }

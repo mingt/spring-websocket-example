@@ -79,7 +79,7 @@ public class GreetingController extends BaseWebSocketController {
         // throw new MessagingException("te te testig...");
         // }
 
-        Thread.sleep(1000); // simulated delay
+        // Thread.sleep(1000); // simulated delay
 
         // return new Greeting("(自己) Hello, " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser);
         Greeting result =
@@ -119,6 +119,8 @@ public class GreetingController extends BaseWebSocketController {
     /**
      * Pm greeting old greeting.
      *
+     * <p>注意，经测试，这个注解方式会改善到全部相关的用户，并非私发。注意与上面“pm”的区别</p>
+     *
      * @param message the message
      * @param principal the principal
      * @return the greeting
@@ -132,30 +134,9 @@ public class GreetingController extends BaseWebSocketController {
                 (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName() : UNKNOWN_USER;
         logger.info("Principal with {}", fromUser);
 
-        Thread.sleep(1000); // simulated delay
+        // Thread.sleep(1000); // simulated delay
         return new Greeting(
-                "(自己pmOld) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
-    }
-
-    /**
-     * 不确认测试1.
-     *
-     * @param message the message
-     * @param principal the principal
-     * @return greeting
-     *
-     * @throws Exception the exception
-     */
-    @MessageMapping("/pmOldT1")
-    @SendToUser("/exchange/amq.direct/greetings")
-    public Greeting pmGreetingOldT1(HelloMessage message, Principal principal) throws Exception {
-        String fromUser =
-                (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName() : UNKNOWN_USER;
-        logger.info("Principal with {}", fromUser);
-
-        Thread.sleep(1000); // simulated delay
-        return new Greeting(
-                "(自己pmOldT1) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
+                "(注解SendTo) " + HtmlUtils.htmlEscape(message.getName()) + "! --- from: " + fromUser); // Hello,
     }
 
     /**

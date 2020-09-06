@@ -56,7 +56,7 @@ public class ChatConfig {
      * @param channelId 频道ID
      * @return 为聊天频道且开启提醒上下线时返回true，否则false
      */
-    public static boolean ifChatRoomRemideOnOffline(String channelId) {
+    public static boolean ifChatRoomRemindOnOffline(String channelId) {
         if (channelId == null) {
             return false;
         }

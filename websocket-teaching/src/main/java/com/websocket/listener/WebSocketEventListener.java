@@ -1,5 +1,5 @@
 
-package com.websocket.controller;
+package com.websocket.listener;
 
 import com.neoframework.microservices.wsteaching.utils.UserUtils;
 import com.thinkgem.jeesite.modules.sys.entity.User;
@@ -126,7 +126,7 @@ public class WebSocketEventListener {
             }
 
             // 聊天频道的话，需要时向相关频道提示用户上线下线等
-            if (ChatConfig.ifChatRoomRemideOnOffline(channelId)) {
+            if (ChatConfig.ifChatRoomRemindOnOffline(channelId)) {
                 Map<String, Object> map = new HashMap<>();
                 map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
                 ChatMessage chatMessage = new ChatMessage(String.format("%s 进入频道", user.getName()));
@@ -170,7 +170,7 @@ public class WebSocketEventListener {
             }
 
             // 聊天频道的话，需要时向相关频道提示用户上线下线等
-            if (ChatConfig.ifChatRoomRemideOnOffline(channelIdSub)) {
+            if (ChatConfig.ifChatRoomRemindOnOffline(channelIdSub)) {
                 Map<String, Object> map = new HashMap<>();
                 map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
                 ChatMessage chatMessage = new ChatMessage(String.format("%s 离开频道", user.getName()));
