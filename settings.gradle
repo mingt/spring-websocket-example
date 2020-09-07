@@ -1,5 +1,8 @@
 rootProject.name = 'spring-websocket-example'
-include 'base-common'
+
+// 改为独立发布依赖。源项目位于neoframework-cloud-demo
+//include 'base-common'
+
 include 'websocket-teaching'
 
 //include 'config-server'
