@@ -3,10 +3,10 @@ package com.websocket.controller;
 
 import com.websocket.WsConstant;
 import com.websocket.config.StompProperties;
-import com.websocket.listener.WebSocketEventListener;
 import com.websocket.model.WsUser;
 import com.websocket.model.chat.ChatMessage;
 import com.websocket.model.chat.ChatRoom;
+import com.websocket.user.OnlineWsUserStore;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +44,9 @@ public class GenericChatController extends BaseWebSocketController {
     private SimpMessageSendingOperations messagingTemplate;
     @Autowired
     private StompProperties stompProperties;
+
+    @Autowired
+    private OnlineWsUserStore onlineWsUserStore;
 
     /**
      * 通用的给某指定频道发消息.
@@ -91,27 +94,28 @@ public class GenericChatController extends BaseWebSocketController {
      * @return users
      */
     protected List<WsUser> getUsers(ChatRoom room, String channelId, Principal principal) {
-        // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
-        // // ? principal.getName() : UNKNOWN_USER;
-        // // logger.info("Principal with {}", fromUser);
+        // // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
+        // // // ? principal.getName() : UNKNOWN_USER;
+        // // // logger.info("Principal with {}", fromUser);
+        // //
+        // // CustomUserDetails userDetails = getCurrentCustomUserDetails(principal);
+        // // com.thinkgem.jeesite.modules.sys.entity.User sysUser =
+        // // (null != userDetails) ? userDetails.getUser() : new com.thinkgem.jeesite.modules.sys.entity.User();
+        // // List<User> users = new ArrayList<>();
+        // // if (null != sysUser.getLoginName()) {
+        // // User user = new User(sysUser.getId(), sysUser.getUid(), sysUser.getLoginName(), sysUser.getName(),
+        // // userDetails.getRole());
+        // // users.add(user);
+        // // } else {
+        // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName()
+        // // : UNKNOWN_USER;
+        // // User user = new User(fromUser);
+        // // users.add(user);
+        // // }
+        // // return users;
         //
-        // CustomUserDetails userDetails = getCurrentCustomUserDetails(principal);
-        // com.thinkgem.jeesite.modules.sys.entity.User sysUser =
-        // (null != userDetails) ? userDetails.getUser() : new com.thinkgem.jeesite.modules.sys.entity.User();
-        // List<User> users = new ArrayList<>();
-        // if (null != sysUser.getLoginName()) {
-        // User user = new User(sysUser.getId(), sysUser.getUid(), sysUser.getLoginName(), sysUser.getName(),
-        // userDetails.getRole());
-        // users.add(user);
-        // } else {
-        // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName()
-        // : UNKNOWN_USER;
-        // User user = new User(fromUser);
-        // users.add(user);
-        // }
-        // return users;
-
-        return WebSocketEventListener.getChannelUsers(channelId);
+        // return WebSocketEventListener.getChannelUsers(channelId);
+        return onlineWsUserStore.getChannelUsers(channelId);
     }
 
     /**

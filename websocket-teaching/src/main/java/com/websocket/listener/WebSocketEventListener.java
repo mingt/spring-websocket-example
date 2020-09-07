@@ -7,14 +7,10 @@ import com.websocket.model.WsUser;
 import com.websocket.model.chat.ChatConfig;
 import com.websocket.model.chat.ChatMessage;
 import com.websocket.model.chat.ChatMessage.MessageType;
+import com.websocket.user.OnlineWsUserStore;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +30,7 @@ import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 /**
  * 监听 Events ，必要时处理互动.
  *
- * <p>
- * 参考：
+ * <p>参考：
  * https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#websocket-stomp-appplication-context-events
  * </p>
  *
@@ -46,13 +41,8 @@ public class WebSocketEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
 
-    /**
-     * 用于维护在线用户的映射（Key:频道id，Value:该频道在线用户列表）.
-     *
-     * <p>TODO: (重要) 当前只是实现了单机（或说单个应用实例）中的在线用户列表。需要支持集群的话，要更多补充、扩展。</p>
-     *
-     */
-    private static final Map<String, List<WsUser>> ONLINE_USERS_MAP = new ConcurrentHashMap<>();
+    @Autowired
+    private OnlineWsUserStore onlineWsUserStore;
 
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
@@ -98,32 +88,7 @@ public class WebSocketEventListener {
         if (StringUtils.isNotBlank(channelId) && user != null) {
             WsUser wsUser = new WsUser(user);
 
-            // ahming notes: 注意极端临界条件，活用 interface ConcurrentMap.putIfAbsent, replace 等方法保证数据一致
-            while (true) {
-                List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
-                // 下面是要区分是否为 null ,而不是数组 null 或非 null 但 size = 0
-                if (channelUsers == null) { // wrong: (CollectionUtils.isEmpty(channelUsers)) {
-                    // 如果当前频道用户列表为空，则新创建一个频道用户列表，并将当前用户添加进去
-                    channelUsers = new ArrayList<>();
-                    channelUsers.add(wsUser);
-                    // 下面与 null 比较，要注意成功新增才返回 null ，如果已存在才非空，返回已存在的值
-                    if ((ONLINE_USERS_MAP.putIfAbsent(channelId, channelUsers)) == null) {
-                        break;
-                    }
-                } else {
-                    if (!channelUsers.contains(wsUser)) {
-                        // 如果当前频道用户列表中不包含当前用户，则将其加入频道用户列表中去
-                        List<WsUser> newChannelUsers = new ArrayList<>(channelUsers);
-                        // newChannelUsers.addAll(channelUsers);
-                        newChannelUsers.add(wsUser);
-                        if (ONLINE_USERS_MAP.replace(channelId, channelUsers, newChannelUsers)) {
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
+            onlineWsUserStore.addChannelUserThreadSafe(channelId, wsUser);
 
             // 聊天频道的话，需要时向相关频道提示用户上线下线等
             if (ChatConfig.ifChatRoomRemindOnOffline(channelId)) {
@@ -163,11 +128,8 @@ public class WebSocketEventListener {
         User user = UserUtils.getCurrentSysUser(principal);
         if (StringUtils.isNotBlank(channelIdSub) && user != null) {
             WsUser wsUser = new WsUser(user);
-            List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelIdSub);
-            if (CollectionUtils.isNotEmpty(channelUsers)) {
-                // 如果当前频道用户列表中包含当前用户，则将其从频道用户列表中移除
-                channelUsers.remove(wsUser);
-            }
+            // 如果当前频道用户列表中包含当前用户，则将其从频道用户列表中移除
+            onlineWsUserStore.removeChannelUser(channelIdSub, wsUser);
 
             // 聊天频道的话，需要时向相关频道提示用户上线下线等
             if (ChatConfig.ifChatRoomRemindOnOffline(channelIdSub)) {
@@ -195,27 +157,12 @@ public class WebSocketEventListener {
         Principal principal = headerAccessor.getUser();
         User user = UserUtils.getCurrentSysUser(principal);
 
-        if (user != null && ONLINE_USERS_MAP.size() > 0) {
+        if (user != null /* && ONLINE_USERS_MAP.size() > 0 */) {
             WsUser wsUser = new WsUser(user);
             // 断开WebSocket连接时，将从所有频道用户列表中将当前用户移除
-            for (List<WsUser> userList : ONLINE_USERS_MAP.values()) {
-                userList.remove(wsUser);
-            }
+            onlineWsUserStore.removeUserFromAllChannel(wsUser);
         }
 
     }
 
-    /**
-     * 从 ONLINE_USERS_MAP 返回当前通道的在线用户.
-     *
-     * @param channelId 通道 ID
-     * @return 在线用户列表 channel users
-     */
-    public static List<WsUser> getChannelUsers(String channelId) {
-        List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
-        if (channelUsers == null) {
-            return Collections.emptyList();
-        }
-        return channelUsers;
-    }
 }
