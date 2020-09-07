@@ -68,8 +68,9 @@ dependencies {
     compile("mysql:mysql-connector-java:5.1.30")
     compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:1.1.1")
 
-    // base common api dependency
-    compile project(':base-common')
+    // base common api dependency --> 改 maven-publish 发布的依赖，见 neoframework-cloud-demo/base-common
+    // compile project(':base-common')
+    compile("neoframework:base-common:0.0.1")
 
     // // CAT
     // compile("com.dianping.cat:cat-client:2.0.0")
