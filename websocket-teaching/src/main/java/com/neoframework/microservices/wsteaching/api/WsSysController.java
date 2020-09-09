@@ -1,5 +1,5 @@
 
-package com.websocket.rest;
+package com.neoframework.microservices.wsteaching.api;
 
 import com.websocket.config.StompProperties;
 import com.websocket.config.StompPropertiesDto;
