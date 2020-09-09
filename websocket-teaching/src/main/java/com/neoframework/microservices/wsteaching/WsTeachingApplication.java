@@ -44,7 +44,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @MapperScan(basePackages = "com.neoframework.microservices.wsteaching.dao",
         annotationClass = MyBatisRepository.class)
 @ComponentScan(basePackages = {"com.neoframework.microservices.wsteaching", "com.neoframework.common.config",
-    "com.websocket" // , "com.neoframework.common.redis"
+    "com.websocket", "com.neoframework.common.redis"
 })
 @Order(Ordered.LOWEST_PRECEDENCE) // 使 WebSecurity 生效，同时使用 ResourceServerConfiguration Oauth2 保护资源
 // 权限控制 // @EnableGlobalMethodSecurity(securedEnabled = true)

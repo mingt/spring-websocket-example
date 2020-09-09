@@ -197,11 +197,13 @@ function connect() {
                     console.log(result.body);
                     return;
                 }
-                var userNames = '用户列表: ';
-                for (var i=0, j=users.length; i<j; i++) {
-                    userNames += users[i].name + ' ';
+                if (users && users.length > 0) {
+                    var userNames = '用户列表: ';
+                    for (var i = 0, j = users.length; i < j; i++) {
+                        userNames += users[i].name + ' ';
+                    }
+                    showGreeting(userNames);
                 }
-                showGreeting(userNames);
             });
         },
         function (frame) {

@@ -76,8 +76,7 @@ public class GenericChatController extends BaseWebSocketController {
         Map<String, Object> map = new HashMap<>();
         map.put(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON);
 
-        // TODO: 改为最终消息的相关信息
-
+        // TODO: 目前为了演示增加一些提示文字，最终应该改为只有信息内容
         ChatMessage result = new ChatMessage("(频道 " + channelId + ") 消息: " + HtmlUtils.htmlEscape(message.getContent())
                 + "! ----- from: " + fromUser);
         result.setId(message.getId());
@@ -94,27 +93,6 @@ public class GenericChatController extends BaseWebSocketController {
      * @return users
      */
     protected List<WsUser> getUsers(ChatRoom room, String channelId, Principal principal) {
-        // // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName()))
-        // // // ? principal.getName() : UNKNOWN_USER;
-        // // // logger.info("Principal with {}", fromUser);
-        // //
-        // // CustomUserDetails userDetails = getCurrentCustomUserDetails(principal);
-        // // com.thinkgem.jeesite.modules.sys.entity.User sysUser =
-        // // (null != userDetails) ? userDetails.getUser() : new com.thinkgem.jeesite.modules.sys.entity.User();
-        // // List<User> users = new ArrayList<>();
-        // // if (null != sysUser.getLoginName()) {
-        // // User user = new User(sysUser.getId(), sysUser.getUid(), sysUser.getLoginName(), sysUser.getName(),
-        // // userDetails.getRole());
-        // // users.add(user);
-        // // } else {
-        // // String fromUser = (principal != null && StringUtils.isNotBlank(principal.getName())) ? principal.getName()
-        // // : UNKNOWN_USER;
-        // // User user = new User(fromUser);
-        // // users.add(user);
-        // // }
-        // // return users;
-        //
-        // return WebSocketEventListener.getChannelUsers(channelId);
         return onlineWsUserStore.getChannelUsers(channelId);
     }
 

@@ -27,7 +27,16 @@ public class MemoryOnlineWsUserStore implements OnlineWsUserStore {
     private static final Map<String, List<WsUser>> ONLINE_USERS_MAP = new ConcurrentHashMap<>();
 
     @Override
+    public boolean verifyChannel(String channelId) {
+        return ChatConfig.isChatRoomChannel(channelId);
+    }
+
+    @Override
     public List<WsUser> getChannelUsers(String channelId) {
+        if (!verifyChannel(channelId)) {
+            return Collections.emptyList();
+        }
+
         List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
         if (channelUsers == null) {
             return Collections.emptyList();
@@ -37,6 +46,9 @@ public class MemoryOnlineWsUserStore implements OnlineWsUserStore {
 
     @Override
     public List<WsUser> addChannelUserThreadSafe(String channelId, WsUser wsUser) {
+        if (!verifyChannel(channelId)) {
+            return Collections.emptyList();
+        }
 
         // ahming notes: 注意极端临界条件，活用 interface ConcurrentMap.putIfAbsent, replace 等方法保证数据一致
         List<WsUser> channelUsers;
@@ -72,6 +84,10 @@ public class MemoryOnlineWsUserStore implements OnlineWsUserStore {
 
     @Override
     public List<WsUser> removeChannelUser(String channelId, WsUser wsUser) {
+        if (!verifyChannel(channelId)) {
+            return Collections.emptyList();
+        }
+
         List<WsUser> channelUsers = ONLINE_USERS_MAP.get(channelId);
         if (CollectionUtils.isNotEmpty(channelUsers)) {
             // 如果当前频道用户列表中包含当前用户，则将其从频道用户列表中移除
